@@ -1,0 +1,149 @@
+
+<!-- saved from url=(0063)http://eecs.wsu.edu/~ananth/CptS571/Programs/Program1/index.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    
+    <meta http-equiv="Content-Language" content="en-us">
+    <meta name="GENERATOR" content="Microsoft FrontPage 6.0">
+    <meta name="ProgId" content="FrontPage.Editor.Document">
+    <title>PROGRAM PROJECT 1</title>
+  </head>
+  <body>
+    <p align="center"><b>PROGRAMMING ASSIGNMENT #1</b></p>
+    <p align="center">Cpt S 471/571, Spring 2016</p>
+    <p align="center"><b>Due:</b>&nbsp; February 12, 11:59pm @ OSBLE+
+      Assignments&nbsp;dropbox</p>
+    <hr>
+    <p align="left"><b>General Guidelines:</b></p>
+    <ul>
+      <li>This is an <i><u>individual</u> </i>programming assignment.
+        Reproduction of source codes from online resources or other's people's
+        assignments is <i> not </i>allowed. All source code should be entirely
+        yours, written from scratch.</li>
+      <li>You can use C or C++ or Java. For reasons of memory efficiency, C or
+        C++ will be highly preferred over Java.</li>
+      <li>Grading will be based on a combination of factors such as correctness,
+        coding style, implementation efficiency, exception handling, source code
+        documentation, and code reusability.</li>
+      <li>When coding, please remember that you will be reusing the code for
+        this assignment in future projects of this course. So make sure you
+        provide a nice interface and modularized code structure during design.</li>
+      <li><b><u>Submission:</u></b> The assignment should be zipped into an
+        archive folder (named after your name - e.g., Program1-XYZ.zip), and
+        attached by email and sent to me through the OSBLE+ system. Submissions
+        are due by 11:59pm on the due date. A 24-hour grace period is allowed
+        although it will incur a late penalty of 10%.
+        <p><font color="#FF0000"><br>
+          </font></p>
+        <p>&nbsp;&nbsp;&nbsp;
+          <!--webbot bot="PurpleText" PREVIEW="Demo: Test inputs for doing the demo.
+" --></p>
+      </li>
+    </ul>
+    <hr>
+    <p><b>Assignment:</b></p>
+    <p>Implement two algorithms: <br>
+      i) Needleman-Wunsch algorithm for computing OPTIMAL GLOBAL ALIGNMENT, and<br>
+      ii) Smith-Waterman algorithm for computing OPTIMAL LOCAL ALIGNMENT,</p>
+    <p>both using <strong><em><i>affine</i> gap penalty function </em></strong>between
+      two input DNA sequences, s<sub>1</sub> and s<sub>2</sub>, of lengths m and
+      n respectively.&nbsp; </p>
+    <p>Each cell of your Dynamic Programming table ("DP table") should have the
+      following structure:</p>
+    <p><i>&nbsp;&nbsp;&nbsp; struct DP_cell {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int score;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ... // add any other field(s)
+        that you may need for the implementation<br>
+        &nbsp;&nbsp;&nbsp; }</i></p>
+    <p>At the start of the program, you should read the alignment score
+      parameters from a user-specified input file (optional). The default name
+      of the file, if the user does not specify one, should be "<b><i>parameters.config</i></b>"
+      in the present working directory. The parameters.config file should allow
+      the user to specify one scoring parameter in each line (space or tab
+      delimited). For example:</p>
+    <p><i>&nbsp;&nbsp;&nbsp; match&nbsp;&nbsp;&nbsp; 1<br>
+        &nbsp;&nbsp;&nbsp; mismatch&nbsp;&nbsp;&nbsp; -2<br>
+        &nbsp;&nbsp;&nbsp; h&nbsp; -5&nbsp; <br>
+        &nbsp;&nbsp;&nbsp; g -1</i></p>
+    <p>The command prompt usage for your program should look as follows:</p>
+    <p><i>&nbsp;&nbsp;&nbsp; $ &lt;executable name&gt; &lt;input file containing
+        both s1 and s2&gt; &lt;0: global, 1: local&gt; &lt;optional: path to
+        parameters config file&gt;</i></p>
+    <p><i>Input File Formats:</i></p>
+    <p>The two input sequences should be given as input in one text file. The
+      text file should be in what is called the "multi-sequence FASTA format",
+      which is as follows:</p>
+    <ul>
+      <li>The format allows the file to contain any number of sequences,
+        although in this program project you will have only two sequences as
+        input.</li>
+      <li>Each sequence will first start with a HEADER line, which has the
+        sequence name in it. This header line will always starts with the "&gt;"
+        symbol and is immediately followed (without any whitespace character) by
+        a word that will serve as the unique identifier (or name) for that
+        sequence. Whatever follows the first whitespace character after the
+        identifier is a don't care and can be ignored in your program.&nbsp; </li>
+      <li>The header line is followed by the actual DNA sequence which is a
+        string over the alphabet {a,c,g,t}. The sequence can span multiple lines
+        and each line can variable number of characters (but no whitespaces or
+        any other special characters).</li>
+    </ul>
+    <p>For example:</p>
+    <p>An input file called "input.fasta" could look like:</p>
+    <p><i>&nbsp;&nbsp;&nbsp; &gt;s1 sequence <br>
+        &nbsp;&nbsp;&nbsp; acatgctacacgtactccgataccccgtaaccgataacgatacacagacct<br>
+        &nbsp;&nbsp;&nbsp; cgtacgcttgctacaacgtactctataaccgagaacgattgaca<br>
+        &nbsp;&nbsp;&nbsp; tgcctcgtacacatgctacacgtactccgatgaccccgt</i></p>
+    <p>&nbsp;&nbsp;&nbsp; <i>&gt;s2 sequence <sub><br>
+        </sub>&nbsp;&nbsp;&nbsp;
+        acattctacgaacctctcgataaccccataaccgataacgattgacacctcgt<br>
+        &nbsp;&nbsp;&nbsp;
+        acgctttctacaacttactctctcgataaccccataaccgataacgattgacacctc<br>
+        &nbsp;&nbsp;&nbsp; gtacacatggtacatacgtactctcgataccccgt</i></p>
+    <p>At completion, the program should output/print the following information:</p>
+    <ul>
+      <li>Parameter values from the parameters.config file: match score,
+        mismatch penalty, gap penalties (h, g)</li>
+      <li>Display the "names" or identifiers of the two sequences aligned</li>
+      <li>The final optimal score</li>
+      <li>For global alignment: display <i>any one</i> optimal alignment (using
+        optimal path retrace) s.t. the alignment is shown wrapped up with each
+        line containing at most 60 aligning positions.</li>
+      <li>Along with each alignment display, report the corresponding numbers
+        for matches, mismatches and gaps (insertions + deletions) and opening
+        gaps. </li>
+      <li>For local alignment: again, display any one optimal scoring local
+        alignment.</li>
+    </ul>
+    <p>All output should be to the standard output. </p>
+    <br>
+    <li> <a href="http://eecs.wsu.edu/~ananth/CptS571/Programs/Program1/Example.htm">Example Input/Output</a></li>
+    <p>As shown above, the alignment is wrapped after every 60 alignment
+      positions, and on both sides the starting and ending indices of the
+      aligning positions in the respective strings should be displayed. Then, a
+      pipe symbol "|" is shown in columns wherever there is a match. (Other
+      columns contain a whitespace character).</p>
+    <p>After implementing and testing, run your program on the following input
+      file, redirect the standard output into a global alignment and a local
+      alignment output text files and attach them as part of your submission:</p>
+    <p><a href="http://eecs.wsu.edu/~ananth/CptS571/Programs/Program1/Human-Mouse-BRCA2-cds.fasta">Human-Mouse-BRCA2-cds.fasta</a></p>
+    <p>This file contains the coding sequences in human and mouse of a gene
+      called <i>BRCA2 </i> which is responsible for breast cancer. The first
+      sequence is the copy of the gene in human and the second is the copy of
+      the gene in mouse</p>
+    <br>
+    You are welcome to create your own additional test cases using small genes
+    from the NCBI GenBank data (e.g., genes related to color blindness from
+    human vs. mouse). <br>
+    <li>
+      <p><b><u>CHECKLIST FOR SUBMISSION:</u></b></p>
+      <p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ___&nbsp; source code</p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ___&nbsp; output file from
+        the above run on the BRCA2 gene</p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ___&nbsp; All the above
+        zipped into an archive </p>
+      <p><br>
+      </p>
+    </li>
+  
+
+</body></html>
