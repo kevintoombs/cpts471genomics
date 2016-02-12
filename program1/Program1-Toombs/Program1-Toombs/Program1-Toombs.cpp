@@ -7,39 +7,132 @@ using namespace std;
 
 struct config 
 {
-	int matchScore;
-	int mismatchScore;
-	int startGapScore;
-	int continueGapScore;
+	int matchScore = 0;
+	int mismatchScore = 0;
+	int startGapScore = 0; //h
+	int continueGapScore = 0; //g
 };
 
 struct DP_cell 
 {
-	int score;
+	int S = 0;// numeric_limits<int>::min();
+	int D = 0;// numeric_limits<int>::min();
+	int I = 0;// numeric_limits<int>::min();
+};
+
+struct DP_table
+{
+	string sequence1, sequence2;
+	vector< vector<DP_cell> > t;
+	config c;
+	int alightmentType;
 };
 
 bool parseFasta(char *argv[], string&, string&);
-config getConfig(char *argv[]);
+config getConfig(int argc, char *argv[]);
+int getAlignmentType(int argc, char *argv[]);
+void buildTable(DP_table &t);
+void initTable(DP_table &t);
+void calcTable(DP_table &t);
+int maximum(int S, int D, int I);
+int subFunction(char a, char b, config c);
+void printTable(DP_table &t);
 
 int main(int argc, char *argv[])
 {
+	DP_table t;
+
 	string sequence1, sequence2;
-	config c;
+	
+	int aligntmentType = getAlignmentType(argc, argv);
+	config c = getConfig(argc, argv); //cout << c.matchScore << c.mismatchScore << c.startGapScore << c.startGapScore;
 
 	if (!parseFasta(argv, sequence1, sequence2)) 
 	{
 		return 1;
-	}
-
-	c = getConfig(argv);
-	cout << endl << sequence1 << endl;
-	cout << endl << sequence2 << endl;
-
+	} cout << endl << sequence1 << endl; cout << endl << sequence2 << endl;
 	
-	
-	DP_cell DPTable[11][11];
+	t.sequence1 = sequence1;
+	t.sequence2 = sequence2;
+	t.c = c;
+	t.alightmentType = aligntmentType;
+
+	buildTable(t); // cout << t.t.size() << " " << t.t[3].size() << endl;
+	calcTable(t);
 
     return 0;
+}
+
+void buildTable(DP_table &t)
+{
+	cout << endl << "Bulding table." << endl;
+	DP_cell c;
+	t.t.resize(t.sequence1.length(), vector<DP_cell>(t.sequence2.length(), c) );
+	/*
+	for (int i = 0; i < t.sequence1.length(); i++) {
+		vector<DP_cell> row; // Create an empty row
+		cout << endl << "Bulding row " << i << "/" << t.sequence1.length() << endl;
+		row.resize(t.sequence1.length());
+		for (int j = 0; j < t.sequence2.length(); j++) {
+		}
+		t.t.push_back(row); // Add the row to the main vector
+	}
+	*/
+	cout << "Done building." << endl;
+	return;
+}
+
+void calcTable(DP_table &t)
+{
+	initTable(t);
+	cout << endl << "Calculating Table." << endl;
+	int i, j;
+	for (i = 1; i < t.sequence1.length(); i++)
+	{
+		for (j = 1; j < t.sequence2.length(); j++)
+		{
+			t.t[i][j].S = maximum
+				(t.t[i - 1][j - 1].S + subFunction(t.sequence1[i], t.sequence2[j], t.c),
+				 t.t[i - 1][j - 1].D + subFunction(t.sequence1[i], t.sequence2[j], t.c),
+				 t.t[i - 1][j - 1].I + subFunction(t.sequence1[i], t.sequence2[j], t.c));
+			t.t[i][j].D = maximum
+				(t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
+					t.t[i - 1][j].D + t.c.continueGapScore,
+					t.t[i - 1][j].I + t.c.startGapScore + t.c.continueGapScore);
+			t.t[i][j].I = maximum
+				(t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
+					t.t[i][j - 1].D + t.c.continueGapScore + t.c.continueGapScore,
+					t.t[i][j - 1].I + t.c.startGapScore);
+			//cout << "Cell: " << i << "," << j << " max: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I) << endl;
+		}
+	}
+
+	printTable(t);
+	
+}
+
+void initTable(DP_table &t)
+{
+	cout << endl << "Initializing Table." << endl;
+	int h = t.c.startGapScore;
+	int g = t.c.continueGapScore;
+
+	t.t[0][0].S = 0;
+
+	t.t[1][0].D = h;
+
+	t.t[0][1].I = h;;
+
+	for (int i = 2; i < t.sequence1.length(); i++) 
+	{
+		t.t[i][0].D = t.t[i-1][0].D + g;
+	}
+	for (int j = 2; j < t.sequence2.length(); j++) 
+	{
+		t.t[0][j].I = t.t[0][j - 1].I + g;
+	}
+
+	cout << "Done initializing." << endl;
 }
 
 bool parseFasta(char *argv[], string &s1, string &s2) 
@@ -65,7 +158,7 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 			{
 				fasta.get(ch);
 				state = 1;
-				cout << endl <<  "String 1 start: " << endl;
+				cout << "Sequence 1 start. ";
 			}
 			if (state == 1) 
 			{
@@ -73,18 +166,18 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 				{
 					s1 += toupper(ch);
 				}
-				cout << ch;
+				//cout << ch;
 				if (ch == '>') 
 				{
 					state = 2;
-					cout << endl << "String 1 end. " << endl;
+					cout << "Sequence 1 end.";
 				}
 			}
 			if (ch == '\n' && state == 2) 
 			{
 				fasta.get(ch);
 				state = 3;
-				cout << endl << "String 2 start: " << endl;
+				cout << endl << "Sequence 2 start. ";
 			}
 			if (state == 3) 
 			{
@@ -92,7 +185,7 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 				{
 					s2 += toupper(ch);
 				}
-				cout << ch;
+				//cout << ch;
 				if (ch == '>') {
 					state = 4;
 				}
@@ -100,7 +193,7 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 		}
 		if (state == 3) 
 		{
-			cout << endl << "String 2 end. " << endl;
+			cout << "Sequence 2 end." << endl;
 		}
 		else 
 		{
@@ -118,21 +211,117 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 	}
 }
 
-config getConfig(char *argv[]) 
+config getConfig(int argc, char *argv[]) 
 {
 	ifstream conFile;
 	string filename;
+	config c;
 
-	if (argv[3])
+	if (argc == 4)
 	{
+		cout << argv[3];
 		filename = argv[3];
+		cout << endl << filename << " opened." << endl;
 	}
 	else
 	{
 		filename = "parameters.config";
+		cout << "Default file: " << filename << " opened." << endl;
 	}
 
-	config c;
+	conFile.open(filename, ios::in);
+	if (!conFile.good())
+	{
+		cout << endl << filename << " not found. All paremters default to 0." << endl;
+		return c;
+	}
+
+	string line;
+	while (getline(conFile, line))
+	{
+		stringstream s(line);
+		string tmp1;
+		string tmp2;
+		while (!s.eof()) {
+			s >> tmp1;
+			s >> tmp2;
+		} //cout << tmp1 << tmp2 << endl;
+		if (tmp1 == "match")
+		{
+			c.matchScore = stoi(tmp2);
+		}
+		if (tmp1 == "mismatch")
+		{
+			c.mismatchScore = stoi(tmp2);
+		}
+		if (tmp1 == "h")
+		{
+			c.startGapScore = stoi(tmp2);
+		}
+		if (tmp1 == "g")
+		{
+			c.continueGapScore = stoi(tmp2);
+		}
+	}
+	cout << "Parameters read." << endl;
+	
 	return c;
 }
 
+int getAlignmentType(int argc, char *argv[])
+{
+	if (argc >= 3)
+	{
+		int i = stoi(argv[2]);
+		cout << "Alignment type (0:global, 1:local): " << i << endl << endl;
+		return i;
+	}
+	else
+	{
+		cout << endl << "Correct usage is  $ <executable name> <input file containing both s1 and s2> "
+			<< "<0: global, 1: local> <optional: path to parameters config file>"
+			<< endl;
+	}
+
+	return 0;
+}
+
+int maximum(int S, int D, int I) 
+{
+	int max = S;
+	if (D > max) 
+	{ 
+		max = D;
+	}
+	if (I > max)
+	{
+		max = I;
+	}
+	return max;
+}
+
+int subFunction(char a, char b, config c)
+{
+	if (a == b)
+	{
+		//cout << "Returning: " << c.matchScore << endl;
+		return c.matchScore;
+	}
+	else
+	{
+		//cout << "Returning: " << c.mismatchScore << endl;
+		return c.mismatchScore;
+	}
+}
+
+void printTable(DP_table &t)
+{
+	for (int i = 0; i < t.sequence1.length(); i++)
+	{
+		for (int j = 0; j < 50; j++)
+		{
+			printf("%3d", maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I));
+		}
+		cout << endl;
+	}
+}
