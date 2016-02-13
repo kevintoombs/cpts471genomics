@@ -18,11 +18,13 @@ struct DP_cell
 	int S = 0;// numeric_limits<int>::min();
 	int D = 0;// numeric_limits<int>::min();
 	int I = 0;// numeric_limits<int>::min();
+	int dir = 0;
 };
 
 struct DP_table
 {
 	string sequence1, sequence2;
+	string id1, id2;
 	vector< vector<DP_cell> > t;
 	config c;
 	int alightmentType;
@@ -39,7 +41,8 @@ int maximum(int S, int D, int I, int alignmentType);
 int subFunction(char a, char b, config c);
 void printTable(DP_table &t);
 void retrace(DP_table &t);
-int direction(DP_cell);
+int direction(DP_cell &c);
+int maximum2(int S, int D, int I, int alignmentType, DP_cell &c);
 int cellMax(DP_cell c, int alignmentType);
 
 int main(int argc, char *argv[])
@@ -54,7 +57,7 @@ int main(int argc, char *argv[])
 	if (!parseFasta(argv, sequence1, sequence2)) 
 	{
 		return 1;
-	} cout << endl << sequence1 << endl << "123423456" << endl << sequence2 << endl;
+	} cout << endl << "s1>" << sequence1 << endl << "s2>" << sequence2 << endl;
 	
 	t.sequence1 = sequence1;
 	t.sequence2 = sequence2;
@@ -87,31 +90,33 @@ void calcTable(DP_table &t)
 	tuple<int, int> maxPair;
 	for (i = 1; i <= t.sequence1.length(); i++)
 	{
+		if (i % 10 == 0) cout << '.';
 		for (j = 1; j <= t.sequence2.length(); j++)
 		{
-			t.t[i][j].S = maximum
-				(t.t[i - 1][j - 1].S + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
+			t.t[i][j].S = maximum2
+				(   t.t[i - 1][j - 1].S + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
 					t.t[i - 1][j - 1].D + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
 					t.t[i - 1][j - 1].I + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
-					t.alightmentType);
-			t.t[i][j].D = maximum
-				(t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
+					t.alightmentType, t.t[i - 1][j - 1]);
+			t.t[i][j].D = maximum2
+				(   t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i - 1][j].D + t.c.continueGapScore,
 					t.t[i - 1][j].I + t.c.startGapScore + t.c.continueGapScore,
-					t.alightmentType);
-			t.t[i][j].I = maximum
-				(t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
+					t.alightmentType, t.t[i - 1][j]);
+			t.t[i][j].I = maximum2
+				(   t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i][j - 1].D + t.c.continueGapScore + t.c.continueGapScore,
 					t.t[i][j - 1].I + t.c.startGapScore,
-					t.alightmentType);
-			if (maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) > maxValue)
+					t.alightmentType, t.t[i][j - 1]);
+			if (cellMax(t.t[i][j], t.alightmentType) > maxValue)
 			{
-				maxValue = maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType);
+				maxValue = cellMax(t.t[i][j], t.alightmentType);
 				maxPair = make_tuple(i, j);
 				t.maxPair = maxPair;
 			}
 		}
 	} i--; j--;// cout << "Cell: " << i << "," << j << " max: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
+	t.t[i][j].dir = direction(t.t[i][j]);
 	if (t.alightmentType == 0)
 	{
 		cout << " maximum global allignment: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
@@ -172,7 +177,6 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 		char ch;
 		int state = 0;
 
-		//TODO:: should turn the state functionality into a recursive function that returns an array of string
 		while (fasta.get(ch)) 
 		{
 			if (ch == '\n' && state == 0)
@@ -341,6 +345,24 @@ int maximum(int S, int D, int I, int alignmentType)
 	return max;
 }
 
+int maximum2(int S, int D, int I, int alignmentType, DP_cell &c)
+{
+	int max = S;
+	c.dir = 2;
+	if (D > max)
+	{
+		max = D;
+		c.dir = 3;
+	}
+	if (I > max)
+	{
+		max = I;
+		c.dir = 1;
+	}
+	if (alignmentType == 1 && max < 0) max = 0;
+	return max;
+}
+
 int subFunction(char a, char b, config c)
 {
 	if (a == b)
@@ -375,40 +397,63 @@ void retrace(DP_table &t)
 	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
 	int lastDir = -1;
 	int dir = -1;
+	stack<char> s1, s2, r;
 	int lastValue = 1;
 	int i = t.sequence1.length();
 	int j = t.sequence2.length();
 
-	if (t.alightmentType == 0)
+	if (t.alightmentType == 1)
 	{
-		while (i >= 0 || j >= 0)
+		int i = get<0>(t.maxPair);
+		int j = get<1>(t.maxPair);
+	}
+
+	if (true)
+	{
+		while (i >= 0 && j >= 0)
 		{
-			cout << cellMax(t.t[i][j], t.alightmentType) << endl;
-			dir = direction(t.t[i][j]);
+			if (t.alightmentType == 1 && cellMax(t.t[i][j], t.alightmentType) == 0)
+			{
+				break;
+			}
+			lastDir = dir;
+			dir = t.t[i][j].dir;
+			//cout << i << j << '-' << cellMax(t.t[i][j], t.alightmentType) << '-' << dir << endl;
 			if (dir == 1)
 			{
 				j--;
+				s1.push('-');
+				s2.push(t.sequence2[j]);
+				r.push(' ');
 				if (lastDir == dir)
 				{
 					gaps++;
+					//cout << "gap" << endl;
+					//cout << i << "," << j << "-";
 				}
 				else
 				{
 					openingGaps++;
 					gaps++;
+					//cout << "start gap" << endl;
 				}
 			}
 			if (dir == 3)
 			{
 				i--;
+				s2.push('-');
+				r.push(' ');
+				s1.push(t.sequence1[i]);
 				if (lastDir == dir)
 				{
 					gaps++;
+					//cout << "gap" << endl;
 				}
 				else
 				{
 					openingGaps++;
 					gaps++;
+					//cout << "start gap" << endl;
 				}
 			}
 
@@ -416,29 +461,37 @@ void retrace(DP_table &t)
 			{
 				j--;
 				i--;
+				
 				if (i >= 0 && j >= 0)
 				{
+					s1.push(t.sequence1[i]);
+					s2.push(t.sequence2[j]);
 					if (subFunction(t.sequence1[i], t.sequence2[j], t.c) > 0)
 					{
 						matches++;
+						r.push('|');
+						//cout << "match" << endl;
 					}
 					else
 					{
 						mismatches++;
+						r.push(' ');
+						//cout << "mismatch" << endl;
 					}
 				}
 			}
-			lastDir = dir;
+			
 		}
 	}
 
+	/*
 	if (t.alightmentType == 1)
 	{
 		while (lastValue != 0)
 		{
 			lastValue = cellMax(t.t[i][j], t.alightmentType);
-			cout << lastValue << endl;
-			
+			//cout << lastValue << endl;
+			lastDir = dir;
 			dir = direction(t.t[i][j]);
 			if (dir == 1)
 			{
@@ -483,21 +536,51 @@ void retrace(DP_table &t)
 					}
 				}
 			}
-			lastDir = dir;
+			
 		}
 	}
-
+	*/
 
 	cout << "Matches: " << matches << endl;
 	cout << "Mismatches: " << mismatches << endl;
 	cout << "Opening Gaps: " << openingGaps<< endl;
 	cout << "Continuing gaps: " << gaps << endl;
-	cout << endl << "done retracing." << endl;
+
+	
+	while (!s1.empty())
+	{
+		int to60 = 0;
+		while (to60 != 60)
+		{
+			if (!s1.empty()) cout << ' ' << s1.top();
+			if (!s1.empty()) s1.pop();
+			to60++;
+		} 
+		to60 = 0;
+		cout << endl;
+		while (to60 != 60)
+		{
+			if (!r.empty()) cout << ' ' << r.top();
+			if (!r.empty()) r.pop();
+			to60++;
+		} 
+		to60 = 0;
+		cout << endl;
+		while (to60 != 60)
+		{
+			if (!s2.empty()) cout << ' ' << s2.top();
+			if (!s2.empty()) s2.pop();
+			to60++;
+		}
+		to60 = 0;
+		cout << endl;
+	}
+	cout << endl << "Sanity check: ";
 	int calcedScore = matches*t.c.matchScore + mismatches*t.c.mismatchScore + openingGaps*t.c.startGapScore + gaps*t.c.continueGapScore;
-	printf("%i*%i+%i*%i+%i*%i+%i*%i=%i", matches, t.c.matchScore, mismatches, t.c.mismatchScore, openingGaps, t.c.startGapScore, gaps, t.c.continueGapScore, calcedScore);
+	printf("%i * %i + %i * %i + %i * %i + %i * %i = %i\n", matches, t.c.matchScore, mismatches, t.c.mismatchScore, openingGaps, t.c.startGapScore, gaps, t.c.continueGapScore, calcedScore);
 }
 
-int direction(DP_cell c) 
+int direction(DP_cell &c) 
 {
 	int dir = 2;
 	int max = c.S;
