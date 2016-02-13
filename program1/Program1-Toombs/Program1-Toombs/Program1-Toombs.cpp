@@ -120,7 +120,7 @@ void calcTable(DP_table &t)
 	{
 		cout << " maximum local allignment: " << maxValue << endl;
 	}
-	printTable(t);
+	//printTable(t);
 	
 }
 
@@ -372,34 +372,128 @@ void printTable(DP_table &t)
 void retrace(DP_table &t)
 {
 	cout << endl << "retracing." << endl;
-	int matches, mismatches, gaps, openingGaps;
+	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
+	int lastDir = 0;
+	int lastValue = 1;
 	int i = t.sequence1.length();
 	int j = t.sequence2.length();
+
 	if (t.alightmentType == 0)
 	{
-		while (i > 0 || j > 0)
+		while (i >= 0 || j >= 0)
 		{
-			int last = 0;
 			cout << cellMax(t.t[i][j], t.alightmentType) << endl;
 			int dir = direction(t.t[i][j]);
 			if (dir == 1)
 			{
 				j--;
+				if (lastDir == dir)
+				{
+					gaps++;
+				}
+				else
+				{
+					openingGaps++;
+					gaps++;
+				}
 			}
 			if (dir == 3)
 			{
 				i--;
+				if (lastDir == dir)
+				{
+					gaps++;
+				}
+				else
+				{
+					openingGaps++;
+					gaps++;
+				}
 			}
 
 			if (dir == 2)
 			{
 				j--;
 				i--;
+				if (i >= 0 && j >= 0)
+				{
+					if (subFunction(t.sequence1[i], t.sequence2[j], t.c) > 0)
+					{
+						matches++;
+					}
+					else
+					{
+						mismatches++;
+					}
+				}
 			}
-			last = dir;
+			lastDir = dir;
 		}
 	}
+
+	if (t.alightmentType == 1)
+	{
+		while (lastValue != 0)
+		{
+			lastValue = cellMax(t.t[i][j], t.alightmentType);
+			cout << lastValue << endl;
+			
+			int dir = direction(t.t[i][j]);
+			if (dir == 1)
+			{
+				j--;
+				if (lastDir == dir)
+				{
+					gaps++;
+				}
+				else
+				{
+					openingGaps++;
+					gaps++;
+				}
+			}
+			if (dir == 3)
+			{
+				i--;
+				if (lastDir == dir)
+				{
+					gaps++;
+				}
+				else
+				{
+					openingGaps++;
+					gaps++;
+				}
+			}
+
+			if (dir == 2)
+			{
+				j--;
+				i--;
+				if (i >= 0 && j >= 0)
+				{
+					if (subFunction(t.sequence1[i], t.sequence2[j], t.c) > 0)
+					{
+						matches++;
+					}
+					else
+					{
+						mismatches++;
+					}
+				}
+			}
+			lastDir = dir;
+		}
+	}
+
+
+	cout << "Matches: " << matches << endl;
+	cout << "Mismatches: " << mismatches << endl;
+	cout << "Opening Gaps: " << openingGaps<< endl;
+	cout << "Continuing gaps: " << gaps << endl;
 	cout << endl << "done retracing." << endl;
+	int calcedScore = matches*t.c.matchScore + mismatches*t.c.mismatchScore + openingGaps*t.c.startGapScore + gaps*t.c.continueGapScore;
+	printf("%i*%i+%i*%i+%i*%i+%i*%i=%i", matches, t.c.matchScore, mismatches, t.c.mismatchScore, openingGaps, t.c.startGapScore, gaps, t.c.continueGapScore, calcedScore);
 }
 
 int direction(DP_cell c) 
