@@ -94,25 +94,28 @@ void calcTable(DP_table &t)
 		for (j = 1; j <= t.sequence2.length(); j++)
 		{
 			t.t[i][j].S = maximum2
-				(   t.t[i - 1][j - 1].S + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
+				(t.t[i - 1][j - 1].S + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
 					t.t[i - 1][j - 1].D + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
 					t.t[i - 1][j - 1].I + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
 					t.alightmentType, t.t[i - 1][j - 1]);
 			t.t[i][j].D = maximum2
-				(   t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
+				(t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i - 1][j].D + t.c.continueGapScore,
 					t.t[i - 1][j].I + t.c.startGapScore + t.c.continueGapScore,
 					t.alightmentType, t.t[i - 1][j]);
 			t.t[i][j].I = maximum2
-				(   t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
+				(t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i][j - 1].D + t.c.continueGapScore + t.c.continueGapScore,
 					t.t[i][j - 1].I + t.c.startGapScore,
 					t.alightmentType, t.t[i][j - 1]);
-			if (cellMax(t.t[i][j], t.alightmentType) > maxValue)
+			if (t.alightmentType == 1)
 			{
-				maxValue = cellMax(t.t[i][j], t.alightmentType);
-				maxPair = make_tuple(i, j);
-				t.maxPair = maxPair;
+				if (cellMax(t.t[i][j], t.alightmentType) > maxValue)
+				{
+					maxValue = cellMax(t.t[i][j], t.alightmentType);
+					maxPair = make_tuple(i, j);
+					t.maxPair = maxPair;
+				}
 			}
 		}
 	} i--; j--;// cout << "Cell: " << i << "," << j << " max: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
@@ -302,7 +305,7 @@ int getAlignmentType(int argc, char *argv[])
 	if (argc >= 3)
 	{
 		int i = stoi(argv[2]);
-		cout << "Alignment type (0:global, 1:local): " << i << endl << endl;
+		//cout << "Alignment type (0:global, 1:local): " << i << endl << endl;
 		return i;
 	}
 	else
@@ -408,80 +411,77 @@ void retrace(DP_table &t)
 		int j = get<1>(t.maxPair);
 	}
 
-	if (true)
-	{
-		while (i >= 0 && j >= 0)
-		{
-			if (t.alightmentType == 1 && cellMax(t.t[i][j], t.alightmentType) == 0)
-			{
-				break;
-			}
-			lastDir = dir;
-			dir = t.t[i][j].dir;
-			//cout << i << j << '-' << cellMax(t.t[i][j], t.alightmentType) << '-' << dir << endl;
-			if (dir == 1)
-			{
-				j--;
-				s1.push('-');
-				s2.push(t.sequence2[j]);
-				r.push(' ');
-				if (lastDir == dir)
-				{
-					gaps++;
-					//cout << "gap" << endl;
-					//cout << i << "," << j << "-";
-				}
-				else
-				{
-					openingGaps++;
-					gaps++;
-					//cout << "start gap" << endl;
-				}
-			}
-			if (dir == 3)
-			{
-				i--;
-				s2.push('-');
-				r.push(' ');
-				s1.push(t.sequence1[i]);
-				if (lastDir == dir)
-				{
-					gaps++;
-					//cout << "gap" << endl;
-				}
-				else
-				{
-					openingGaps++;
-					gaps++;
-					//cout << "start gap" << endl;
-				}
-			}
 
-			if (dir == 2)
+	while (i >= 0 && j >= 0)
+	{
+		if (t.alightmentType == 1 && cellMax(t.t[i][j], t.alightmentType) == 0)
+		{
+			break;
+		}
+		lastDir = dir;
+		dir = t.t[i][j].dir;
+		//cout << i << j << '-' << cellMax(t.t[i][j], t.alightmentType) << '-' << dir << endl;
+		if (dir == 1)
+		{
+			j--;
+			s1.push('-');
+			s2.push(t.sequence2[j]);
+			r.push(' ');
+			if (lastDir == dir)
 			{
-				j--;
-				i--;
+				gaps++;
+				//cout << "gap" << endl;
+				//cout << i << "," << j << "-";
+			}
+			else
+			{
+				openingGaps++;
+				gaps++;
+				//cout << "start gap" << endl;
+			}
+		}
+		if (dir == 3)
+		{
+			i--;
+			s2.push('-');
+			r.push(' ');
+			s1.push(t.sequence1[i]);
+			if (lastDir == dir)
+			{
+				gaps++;
+				//cout << "gap" << endl;
+			}
+			else
+			{
+				openingGaps++;
+				gaps++;
+				//cout << "start gap" << endl;
+			}
+		}
+
+		if (dir == 2)
+		{
+			j--;
+			i--;
 				
-				if (i >= 0 && j >= 0)
+			if (i >= 0 && j >= 0)
+			{
+				s1.push(t.sequence1[i]);
+				s2.push(t.sequence2[j]);
+				if (subFunction(t.sequence1[i], t.sequence2[j], t.c) > 0)
 				{
-					s1.push(t.sequence1[i]);
-					s2.push(t.sequence2[j]);
-					if (subFunction(t.sequence1[i], t.sequence2[j], t.c) > 0)
-					{
-						matches++;
-						r.push('|');
-						//cout << "match" << endl;
-					}
-					else
-					{
-						mismatches++;
-						r.push(' ');
-						//cout << "mismatch" << endl;
-					}
+					matches++;
+					r.push('|');
+					//cout << "match" << endl;
+				}
+				else
+				{
+					mismatches++;
+					r.push(' ');
+					//cout << "mismatch" << endl;
 				}
 			}
-			
-		}
+		}	
 	}
 
 	/*
