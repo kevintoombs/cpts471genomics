@@ -34,9 +34,10 @@ int getAlignmentType(int argc, char *argv[]);
 void buildTable(DP_table &t);
 void initTable(DP_table &t);
 void calcTable(DP_table &t);
-int maximum(int S, int D, int I);
+int maximum(int S, int D, int I, int alignmentType);
 int subFunction(char a, char b, config c);
 void printTable(DP_table &t);
+void retrace(DP_table &t);
 
 int main(int argc, char *argv[])
 {
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
 	if (!parseFasta(argv, sequence1, sequence2)) 
 	{
 		return 1;
-	} cout << endl << sequence1 << endl; cout << endl << sequence2 << endl;
+	} cout << endl << sequence1 << endl << "123423456" << endl << sequence2 << endl;
 	
 	t.sequence1 = sequence1;
 	t.sequence2 = sequence2;
@@ -59,6 +60,7 @@ int main(int argc, char *argv[])
 
 	buildTable(t); // cout << t.t.size() << " " << t.t[3].size() << endl;
 	calcTable(t);
+	retrace(t);
 
     return 0;
 }
@@ -67,17 +69,9 @@ void buildTable(DP_table &t)
 {
 	cout << endl << "Bulding table." << endl;
 	DP_cell c;
-	t.t.resize(t.sequence1.length(), vector<DP_cell>(t.sequence2.length(), c) );
-	/*
-	for (int i = 0; i < t.sequence1.length(); i++) {
-		vector<DP_cell> row; // Create an empty row
-		cout << endl << "Bulding row " << i << "/" << t.sequence1.length() << endl;
-		row.resize(t.sequence1.length());
-		for (int j = 0; j < t.sequence2.length(); j++) {
-		}
-		t.t.push_back(row); // Add the row to the main vector
-	}
-	*/
+	t.t.resize(t.sequence1.length()+1, vector<DP_cell>(t.sequence2.length()+1, c) );
+
+
 	cout << "Done building." << endl;
 	return;
 }
@@ -86,27 +80,42 @@ void calcTable(DP_table &t)
 {
 	initTable(t);
 	cout << endl << "Calculating Table." << endl;
-	int i, j;
-	for (i = 1; i < t.sequence1.length(); i++)
+	int i, j, maxValue = 0;
+	tuple<int, int> maxPair;
+	for (i = 1; i <= t.sequence1.length(); i++)
 	{
-		for (j = 1; j < t.sequence2.length(); j++)
+		for (j = 1; j <= t.sequence2.length(); j++)
 		{
 			t.t[i][j].S = maximum
-				(t.t[i - 1][j - 1].S + subFunction(t.sequence1[i], t.sequence2[j], t.c),
-				 t.t[i - 1][j - 1].D + subFunction(t.sequence1[i], t.sequence2[j], t.c),
-				 t.t[i - 1][j - 1].I + subFunction(t.sequence1[i], t.sequence2[j], t.c));
+				(t.t[i - 1][j - 1].S + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
+					t.t[i - 1][j - 1].D + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
+					t.t[i - 1][j - 1].I + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
+					t.alightmentType);
 			t.t[i][j].D = maximum
 				(t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i - 1][j].D + t.c.continueGapScore,
-					t.t[i - 1][j].I + t.c.startGapScore + t.c.continueGapScore);
+					t.t[i - 1][j].I + t.c.startGapScore + t.c.continueGapScore,
+					t.alightmentType);
 			t.t[i][j].I = maximum
 				(t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i][j - 1].D + t.c.continueGapScore + t.c.continueGapScore,
-					t.t[i][j - 1].I + t.c.startGapScore);
-			//cout << "Cell: " << i << "," << j << " max: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I) << endl;
+					t.t[i][j - 1].I + t.c.startGapScore,
+					t.alightmentType);
+			if (maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) > maxValue)
+			{
+				maxValue = maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType);
+				maxPair = make_tuple(i, j);
+			}
 		}
+	} i--; j--;// cout << "Cell: " << i << "," << j << " max: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
+	if (t.alightmentType == 0)
+	{
+		cout << " maximum global allignment: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
 	}
-
+	else
+	{
+		cout << " maximum local allignment: " << maxValue << endl;
+	}
 	printTable(t);
 	
 }
@@ -120,17 +129,25 @@ void initTable(DP_table &t)
 	t.t[0][0].S = 0;
 
 	t.t[1][0].D = h;
+	t.t[1][0].S = -1147483648;
+	t.t[1][0].I = -1147483648;
 
-	t.t[0][1].I = h;;
+	t.t[0][1].I = h;
+	t.t[0][1].S = -1147483648;
+	t.t[0][1].D = -1147483648;
 
 	for (int i = 2; i < t.sequence1.length(); i++) 
 	{
 		t.t[i][0].D = t.t[i-1][0].D + g;
+		t.t[i][0].S = -1147483648;
+		t.t[i][0].I = -1147483648;
 	}
 	for (int j = 2; j < t.sequence2.length(); j++) 
 	{
 		t.t[0][j].I = t.t[0][j - 1].I + g;
-	}
+		t.t[0][j].S = -1147483648;
+		t.t[0][j].D = -1147483648;
+	} 
 
 	cout << "Done initializing." << endl;
 }
@@ -249,18 +266,22 @@ config getConfig(int argc, char *argv[])
 		if (tmp1 == "match")
 		{
 			c.matchScore = stoi(tmp2);
+			cout << tmp1 << " = " << tmp2 << endl;
 		}
 		if (tmp1 == "mismatch")
 		{
 			c.mismatchScore = stoi(tmp2);
+			cout << tmp1 << " = " << tmp2 << endl;
 		}
 		if (tmp1 == "h")
 		{
 			c.startGapScore = stoi(tmp2);
+			cout << tmp1 << " = " << tmp2 << endl;
 		}
 		if (tmp1 == "g")
 		{
 			c.continueGapScore = stoi(tmp2);
+			cout << tmp1 << " = " << tmp2 << endl;
 		}
 	}
 	cout << "Parameters read." << endl;
@@ -286,7 +307,7 @@ int getAlignmentType(int argc, char *argv[])
 	return 0;
 }
 
-int maximum(int S, int D, int I) 
+int maximum(int S, int D, int I, int alignmentType)
 {
 	int max = S;
 	if (D > max) 
@@ -297,6 +318,7 @@ int maximum(int S, int D, int I)
 	{
 		max = I;
 	}
+	if (alignmentType == 1 && max < 0) max = 0;
 	return max;
 }
 
@@ -316,12 +338,19 @@ int subFunction(char a, char b, config c)
 
 void printTable(DP_table &t)
 {
-	for (int i = 0; i < t.sequence1.length(); i++)
+	for (int i = 0; i < 100; i++)
 	{
-		for (int j = 0; j < 50; j++)
+		for (int j = 0; j < 80; j++)
 		{
-			printf("%3d", maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I));
+			int m = maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I,t.alightmentType);
+			if (m >= 0) printf("%3d", m);
+			else cout << "   ";
 		}
 		cout << endl;
 	}
+}
+
+void retrace(DP_table &t)
+{
+
 }
