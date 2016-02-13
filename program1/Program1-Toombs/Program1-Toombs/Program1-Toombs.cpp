@@ -26,6 +26,7 @@ struct DP_table
 	vector< vector<DP_cell> > t;
 	config c;
 	int alightmentType;
+	tuple<int, int> maxPair;
 };
 
 bool parseFasta(char *argv[], string&, string&);
@@ -38,6 +39,8 @@ int maximum(int S, int D, int I, int alignmentType);
 int subFunction(char a, char b, config c);
 void printTable(DP_table &t);
 void retrace(DP_table &t);
+int direction(DP_cell);
+int cellMax(DP_cell c, int alignmentType);
 
 int main(int argc, char *argv[])
 {
@@ -105,6 +108,7 @@ void calcTable(DP_table &t)
 			{
 				maxValue = maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType);
 				maxPair = make_tuple(i, j);
+				t.maxPair = maxPair;
 			}
 		}
 	} i--; j--;// cout << "Cell: " << i << "," << j << " max: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
@@ -307,6 +311,21 @@ int getAlignmentType(int argc, char *argv[])
 	return 0;
 }
 
+int cellMax(DP_cell c, int alignmentType)
+{
+	int max = c.S;
+	if (c.D > max)
+	{
+		max = c.D;
+	}
+	if (c.I > max)
+	{
+		max = c.I;
+	}
+	if (alignmentType == 1 && max < 0) max = 0;
+	return max;
+}
+
 int maximum(int S, int D, int I, int alignmentType)
 {
 	int max = S;
@@ -352,5 +371,51 @@ void printTable(DP_table &t)
 
 void retrace(DP_table &t)
 {
+	cout << endl << "retracing." << endl;
+	int matches, mismatches, gaps, openingGaps;
+	int i = t.sequence1.length();
+	int j = t.sequence2.length();
+	if (t.alightmentType == 0)
+	{
+		while (i > 0 || j > 0)
+		{
+			int last = 0;
+			cout << cellMax(t.t[i][j], t.alightmentType) << endl;
+			int dir = direction(t.t[i][j]);
+			if (dir == 1)
+			{
+				j--;
+			}
+			if (dir == 3)
+			{
+				i--;
+			}
 
+			if (dir == 2)
+			{
+				j--;
+				i--;
+			}
+			last = dir;
+		}
+	}
+	cout << endl << "done retracing." << endl;
+}
+
+int direction(DP_cell c) 
+{
+	int dir = 2;
+	int max = c.S;
+
+	if (c.D > max)
+	{
+		max = c.D;
+		dir = 3;
+	}
+	if (c.I > max)
+	{
+		max = c.I;
+		dir = 1;
+	}
+	return dir;
 }
