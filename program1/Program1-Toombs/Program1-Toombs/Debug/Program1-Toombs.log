@@ -1,4 +1,4 @@
-﻿Build started 2/12/2016 5:23:59 PM.
+﻿Build started 2/12/2016 5:27:26 PM.
      1>Project "C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Program1-Toombs\Program1-Toombs.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\Program1-Toombs.pch" /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt "Program1-Toombs.cpp"

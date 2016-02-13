@@ -373,7 +373,8 @@ void retrace(DP_table &t)
 {
 	cout << endl << "retracing." << endl;
 	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
-	int lastDir = 0;
+	int lastDir = -1;
+	int dir = -1;
 	int lastValue = 1;
 	int i = t.sequence1.length();
 	int j = t.sequence2.length();
@@ -383,7 +384,7 @@ void retrace(DP_table &t)
 		while (i >= 0 || j >= 0)
 		{
 			cout << cellMax(t.t[i][j], t.alightmentType) << endl;
-			int dir = direction(t.t[i][j]);
+			dir = direction(t.t[i][j]);
 			if (dir == 1)
 			{
 				j--;
@@ -438,7 +439,7 @@ void retrace(DP_table &t)
 			lastValue = cellMax(t.t[i][j], t.alightmentType);
 			cout << lastValue << endl;
 			
-			int dir = direction(t.t[i][j]);
+			dir = direction(t.t[i][j]);
 			if (dir == 1)
 			{
 				j--;
