@@ -31,7 +31,7 @@ struct DP_table
 	tuple<int, int> maxPair;
 };
 
-bool parseFasta(char *argv[], string&, string&);
+bool parseFasta(char *argv[], DP_table &t);
 config getConfig(int argc, char *argv[]);
 int getAlignmentType(int argc, char *argv[]);
 void buildTable(DP_table &t);
@@ -48,23 +48,21 @@ int cellMax(DP_cell c, int alignmentType);
 int main(int argc, char *argv[])
 {
 	DP_table t;
-
-	string sequence1, sequence2;
-	
-	int aligntmentType = getAlignmentType(argc, argv);
-	config c = getConfig(argc, argv); //cout << c.matchScore << c.mismatchScore << c.startGapScore << c.startGapScore;
-
-	if (!parseFasta(argv, sequence1, sequence2)) 
+	t.alightmentType = getAlignmentType(argc, argv);
+	t.c = getConfig(argc, argv); 
+	if (!parseFasta(argv, t) )
 	{
 		return 1;
-	} cout << endl << "s1>" << sequence1 << endl << "s2>" << sequence2 << endl;
-	
-	t.sequence1 = sequence1;
-	t.sequence2 = sequence2;
-	t.c = c;
-	t.alightmentType = aligntmentType;
+	} 
 
-	buildTable(t); // cout << t.t.size() << " " << t.t[3].size() << endl;
+	printf("Scores: Match = %i, Mismatch = %i, h = %i, g = %i\n", t.c.matchScore, t.c.matchScore, t.c.startGapScore, t.c.continueGapScore);
+	cout << endl;
+
+	printf("Sequence 1 = %s, length = %i characters\n", "s1", t.sequence1.length());
+	printf("Sequence 2 = %s, length = %i characters\n", "s2", t.sequence2.length());
+	cout << endl;
+	
+	buildTable(t);
 	calcTable(t);
 	retrace(t);
 
@@ -73,25 +71,25 @@ int main(int argc, char *argv[])
 
 void buildTable(DP_table &t)
 {
-	cout << endl << "Bulding table." << endl;
+	printf("Building Table.");
 	DP_cell c;
 	t.t.resize(t.sequence1.length()+1, vector<DP_cell>(t.sequence2.length()+1, c) );
+	cout << endl;
 
-
-	cout << "Done building." << endl;
 	return;
 }
 
 void calcTable(DP_table &t)
 {
-	initTable(t);
-	cout << endl << "Calculating Table." << endl;
+	if (t.alightmentType == 0) initTable(t);
 	int i, j, maxValue = 0;
 	tuple<int, int> maxPair;
+
+	printf("Calculating Table[characters remaining]:");
 	for (i = 1; i <= t.sequence1.length(); i++)
 	{
-		if (i % 10 == 0) cout << '.';
-		for (j = 1; j <= t.sequence2.length(); j++)
+		if (i % 15 == 0) printf("[%i]", t.sequence1.length() - i);
+		for (j = 1; j <=  t.sequence2.length(); j++)
 		{
 			t.t[i][j].S = maximum2
 				(t.t[i - 1][j - 1].S + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
@@ -118,23 +116,15 @@ void calcTable(DP_table &t)
 				}
 			}
 		}
-	} i--; j--;// cout << "Cell: " << i << "," << j << " max: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
-	t.t[i][j].dir = direction(t.t[i][j]);
-	if (t.alightmentType == 0)
-	{
-		cout << " maximum global allignment: " << maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I, t.alightmentType) << endl;
-	}
-	else
-	{
-		cout << " maximum local allignment: " << maxValue << endl;
-	}
-	//printTable(t);
+	} 
+	cout << endl << endl;
+	t.t[i-1][j-1].dir = direction(t.t[i-1][j-1]);
+
 	
 }
 
 void initTable(DP_table &t)
 {
-	cout << endl << "Initializing Table." << endl;
 	int h = t.c.startGapScore;
 	int g = t.c.continueGapScore;
 
@@ -160,11 +150,9 @@ void initTable(DP_table &t)
 		t.t[0][j].S = -1147483648;
 		t.t[0][j].D = -1147483648;
 	} 
-
-	cout << "Done initializing." << endl;
 }
 
-bool parseFasta(char *argv[], string &s1, string &s2) 
+bool parseFasta(char *argv[], DP_table &t)
 {
 	ifstream fasta;
 	if (argv[1]) 
@@ -172,46 +160,63 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 		fasta.open(argv[1], ios::in);
 		if (!fasta.good()) 
 		{
-			cout << endl << argv[1] << " not found." << endl;
 			return false;
 		}
-		cout << endl << argv[1] << " opened." << endl;
 		
 		char ch;
 		int state = 0;
+		int getId = 0;
 
 		while (fasta.get(ch)) 
 		{
+
+			if (ch == '>' && state == 0 && getId == 0 )
+			{
+				getId = 1;
+			}
+			if (ch == '>' && getId == 1)
+			{
+				if (ch == ' ') 
+				{ 
+					getId = 2;
+					break;
+				}
+				t.id1 += ch;
+			}
 			if (ch == '\n' && state == 0)
 			{
 				fasta.get(ch);
 				state = 1;
-				cout << "Sequence 1 start. ";
 			}
 			if (state == 1) 
 			{
 				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
 				{
-					s1 += toupper(ch);
+					t.sequence1 += toupper(ch);
 				}
-				//cout << ch;
 				if (ch == '>') 
 				{
 					state = 2;
-					cout << "Sequence 1 end.";
 				}
+			}
+			if (getId == 2 && state == 2)
+			{
+				if (ch == ' ')
+				{
+					getId = 3;
+					break;
+				}
+				t.id2 += ch;
 			}
 			if (ch == '\n' && state == 2) 
 			{
-				fasta.get(ch);
 				state = 3;
-				cout << endl << "Sequence 2 start. ";
 			}
 			if (state == 3) 
 			{
 				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
 				{
-					s2 += toupper(ch);
+					t.sequence2 += toupper(ch);
 				}
 				//cout << ch;
 				if (ch == '>') {
@@ -221,7 +226,7 @@ bool parseFasta(char *argv[], string &s1, string &s2)
 		}
 		if (state == 3) 
 		{
-			cout << "Sequence 2 end." << endl;
+			
 		}
 		else 
 		{
@@ -249,7 +254,6 @@ config getConfig(int argc, char *argv[])
 	{
 		cout << argv[3];
 		filename = argv[3];
-		cout << endl << filename << " opened." << endl;
 	}
 	else
 	{
@@ -277,25 +281,20 @@ config getConfig(int argc, char *argv[])
 		if (tmp1 == "match")
 		{
 			c.matchScore = stoi(tmp2);
-			cout << tmp1 << " = " << tmp2 << endl;
 		}
 		if (tmp1 == "mismatch")
 		{
 			c.mismatchScore = stoi(tmp2);
-			cout << tmp1 << " = " << tmp2 << endl;
 		}
 		if (tmp1 == "h")
 		{
 			c.startGapScore = stoi(tmp2);
-			cout << tmp1 << " = " << tmp2 << endl;
 		}
 		if (tmp1 == "g")
 		{
 			c.continueGapScore = stoi(tmp2);
-			cout << tmp1 << " = " << tmp2 << endl;
 		}
 	}
-	cout << "Parameters read." << endl;
 	
 	return c;
 }
@@ -370,12 +369,10 @@ int subFunction(char a, char b, config c)
 {
 	if (a == b)
 	{
-		//cout << "Returning: " << c.matchScore << endl;
 		return c.matchScore;
 	}
 	else
 	{
-		//cout << "Returning: " << c.mismatchScore << endl;
 		return c.mismatchScore;
 	}
 }
@@ -396,7 +393,6 @@ void printTable(DP_table &t)
 
 void retrace(DP_table &t)
 {
-	cout << endl << "retracing." << endl;
 	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
 	int lastDir = -1;
 	int dir = -1;
@@ -420,7 +416,6 @@ void retrace(DP_table &t)
 		}
 		lastDir = dir;
 		dir = t.t[i][j].dir;
-		//cout << i << j << '-' << cellMax(t.t[i][j], t.alightmentType) << '-' << dir << endl;
 		if (dir == 1)
 		{
 			j--;
@@ -430,8 +425,6 @@ void retrace(DP_table &t)
 			if (lastDir == dir)
 			{
 				gaps++;
-				//cout << "gap" << endl;
-				//cout << i << "," << j << "-";
 			}
 			else
 			{
@@ -483,73 +476,12 @@ void retrace(DP_table &t)
 			}
 		}	
 	}
-
-	/*
-	if (t.alightmentType == 1)
-	{
-		while (lastValue != 0)
-		{
-			lastValue = cellMax(t.t[i][j], t.alightmentType);
-			//cout << lastValue << endl;
-			lastDir = dir;
-			dir = direction(t.t[i][j]);
-			if (dir == 1)
-			{
-				j--;
-				if (lastDir == dir)
-				{
-					gaps++;
-				}
-				else
-				{
-					openingGaps++;
-					gaps++;
-				}
-			}
-			if (dir == 3)
-			{
-				i--;
-				if (lastDir == dir)
-				{
-					gaps++;
-				}
-				else
-				{
-					openingGaps++;
-					gaps++;
-				}
-			}
-
-			if (dir == 2)
-			{
-				j--;
-				i--;
-				if (i >= 0 && j >= 0)
-				{
-					if (subFunction(t.sequence1[i], t.sequence2[j], t.c) > 0)
-					{
-						matches++;
-					}
-					else
-					{
-						mismatches++;
-					}
-				}
-			}
-			
-		}
-	}
-	*/
-
-	cout << "Matches: " << matches << endl;
-	cout << "Mismatches: " << mismatches << endl;
-	cout << "Opening Gaps: " << openingGaps<< endl;
-	cout << "Continuing gaps: " << gaps << endl;
-
 	
 	while (!s1.empty())
 	{
 		int to60 = 0;
+
+		// printf("s1 %5d ", );
 		while (to60 != 60)
 		{
 			if (!s1.empty()) cout << ' ' << s1.top();
@@ -575,9 +507,18 @@ void retrace(DP_table &t)
 		to60 = 0;
 		cout << endl;
 	}
-	cout << endl << "Sanity check: ";
-	int calcedScore = matches*t.c.matchScore + mismatches*t.c.mismatchScore + openingGaps*t.c.startGapScore + gaps*t.c.continueGapScore;
-	printf("%i * %i + %i * %i + %i * %i + %i * %i = %i\n", matches, t.c.matchScore, mismatches, t.c.mismatchScore, openingGaps, t.c.startGapScore, gaps, t.c.continueGapScore, calcedScore);
+	cout << endl;
+
+
+	cout << "Report:\n\n";
+	if (t.alightmentType == 0) printf("Global optimal score = %i\n\n", t.t[t.sequence1.size()][t.sequence2.size()]);
+	if (t.alightmentType == 1) printf("Local optimal score = %i\n\n", t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]);
+	printf("Number of:  matches = %i, mismatches = %i, gaps = %i, opening gaps = %i\n", matches, mismatches, gaps, openingGaps);
+	float total = gaps + matches + mismatches;
+	float identities = matches + mismatches;
+	float p1 = 100 * identities / total;
+	float p2 = 100 * gaps / total;
+	printf("Identities = %.0f/%.0f (%2.1f percent), Gaps = %i/%.0f (%2.1f percent)\n", identities, total, p1, gaps, total, p2);
 }
 
 int direction(DP_cell &c) 

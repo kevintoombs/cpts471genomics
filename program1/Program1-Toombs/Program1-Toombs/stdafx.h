@@ -16,6 +16,7 @@
 #include <vector>
 #include <limits>
 #include <tuple>
+#include <ctype.h>
 #include <stack>       
 #include <deque>   
 
