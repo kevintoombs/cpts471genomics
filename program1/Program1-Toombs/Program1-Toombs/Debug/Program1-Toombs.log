@@ -1,17 +1,6 @@
-﻿Build started 2/13/2016 1:42:16 PM.
+﻿Build started 2/24/2016 7:00:09 PM.
      1>Project "C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Program1-Toombs\Program1-Toombs.vcxproj" on node 2 (Build target(s)).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\Program1-Toombs.pch" /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt "Program1-Toombs.cpp"
-         Program1-Toombs.cpp
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(89): warning C4018: '<=': signed/unsigned mismatch
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(92): warning C4018: '<=': signed/unsigned mismatch
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(141): warning C4018: '<': signed/unsigned mismatch
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(147): warning C4018: '<': signed/unsigned mismatch
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(520): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(521): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(517): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
-     1>c:\users\guenw\documents\gitrepos\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(518): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
-       Link:
+     1>Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.lib" /MACHINE:X86 "Debug\Program1-Toombs.obj"
          Debug\stdafx.obj
          Program1-Toombs.vcxproj -> C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.exe
@@ -19,4 +8,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.77
+Time Elapsed 00:00:00.49

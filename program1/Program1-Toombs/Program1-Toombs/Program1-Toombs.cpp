@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 
+
 using namespace std;
 
 struct config 
@@ -47,6 +48,7 @@ int cellMax(DP_cell c, int alignmentType);
 
 int main(int argc, char *argv[])
 {
+
 	DP_table t;
 	t.alightmentType = getAlignmentType(argc, argv);
 	t.c = getConfig(argc, argv); 
@@ -55,11 +57,13 @@ int main(int argc, char *argv[])
 		return 1;
 	} 
 
-	printf("Scores: Match = %i, Mismatch = %i, h = %i, g = %i\n", t.c.matchScore, t.c.matchScore, t.c.startGapScore, t.c.continueGapScore);
+	printf("Scores: Match = %i, Mismatch = %i, h = %i, g = %i\n", t.c.matchScore, t.c.mismatchScore, t.c.startGapScore, t.c.continueGapScore);
 	cout << endl;
 
-	printf("Sequence 1 = %s, length = %i characters\n", "s1", t.sequence1.length());
-	printf("Sequence 2 = %s, length = %i characters\n", "s2", t.sequence2.length());
+	cout << "Sequence 1 = \"" << t.id1;
+	printf("\", length = %i characters\n", t.sequence1.length());
+	cout << "Sequence 2 = \"" << t.id2;
+	printf("\", length = %i characters\n", t.sequence2.length());
 	cout << endl;
 	
 	buildTable(t);
@@ -85,10 +89,10 @@ void calcTable(DP_table &t)
 	int i, j, maxValue = 0;
 	tuple<int, int> maxPair;
 
-	printf("Calculating Table[characters remaining]:");
+	printf("Calculating Table[rows remaining]:");
 	for (i = 1; i <= t.sequence1.length(); i++)
 	{
-		if (i % 15 == 0) printf("[%i]", t.sequence1.length() - i);
+		if (i % (t.sequence1.length() / 100) == 0) printf("[%i]", t.sequence1.length() - i);
 		for (j = 1; j <=  t.sequence2.length(); j++)
 		{
 			t.t[i][j].S = maximum2
@@ -167,74 +171,97 @@ bool parseFasta(char *argv[], DP_table &t)
 		int state = 0;
 		int getId = 0;
 
+		//probably overly complicated state based method to parse the fasta file
 		while (fasta.get(ch)) 
 		{
+
+			//should always evaluate true at first 
+			if (state == 0 && getId == 1)
+			{
+				if (isspace(ch))
+				{
+					//cout << "not alnum" << endl;
+					getId = 0;
+				}
+				else if (!isspace(ch))
+				{
+					t.id1 += ch;
+					//cout << t.id1 << endl;
+				}
+			}
 
 			if (ch == '>' && state == 0 && getId == 0 )
 			{
 				getId = 1;
 			}
-			if (ch == '>' && getId == 1)
-			{
-				if (ch == ' ') 
-				{ 
-					getId = 2;
-					break;
-				}
-				t.id1 += ch;
-			}
+
+			
+
+			//after the first line
 			if (ch == '\n' && state == 0)
 			{
-				fasta.get(ch);
 				state = 1;
 			}
+
+			if (state == 2 && getId == 1)
+			{
+				if (isspace(ch))
+				{
+					//cout << "not alnum" << endl;
+					getId = 0;
+				}
+				else if (!isspace(ch))
+				{
+					t.id2 += ch;
+					//cout << t.id2 << endl;
+				}
+			}
+			
 			if (state == 1) 
 			{
 				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
 				{
 					t.sequence1 += toupper(ch);
+					//cout << t.sequence1 << endl;
+					//cout << t.sequence1.length() << endl;
 				}
 				if (ch == '>') 
 				{
 					state = 2;
+					getId = 1;
 				}
 			}
-			if (getId == 2 && state == 2)
-			{
-				if (ch == ' ')
-				{
-					getId = 3;
-					break;
-				}
-				t.id2 += ch;
-			}
+
+			
+
+
 			if (ch == '\n' && state == 2) 
 			{
 				state = 3;
 			}
+
 			if (state == 3) 
 			{
 				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
 				{
 					t.sequence2 += toupper(ch);
+					//cout << t.sequence2 << endl;
+					//cout << t.sequence2.length() << endl;
 				}
 				//cout << ch;
 				if (ch == '>') {
 					state = 4;
 				}
 			}
-		}
-		if (state == 3) 
-		{
+
 			
 		}
-		else 
-		{
-			cout << endl << "Invalid fasta input." << endl;
-		}
+
+		//cout << t.id1 << ',' << t.id2 << endl;
 		fasta.close();
 		return true;
 	} 
+
 	else 
 	{
 		cout << endl << "No input file specified. Correct usage is  $ <executable name> "
@@ -484,7 +511,7 @@ void retrace(DP_table &t)
 		// printf("s1 %5d ", );
 		while (to60 != 60)
 		{
-			if (!s1.empty()) cout << ' ' << s1.top();
+			if (!s1.empty()) cout << s1.top();
 			if (!s1.empty()) s1.pop();
 			to60++;
 		} 
@@ -492,7 +519,7 @@ void retrace(DP_table &t)
 		cout << endl;
 		while (to60 != 60)
 		{
-			if (!r.empty()) cout << ' ' << r.top();
+			if (!r.empty()) cout <<  r.top();
 			if (!r.empty()) r.pop();
 			to60++;
 		} 
@@ -500,19 +527,20 @@ void retrace(DP_table &t)
 		cout << endl;
 		while (to60 != 60)
 		{
-			if (!s2.empty()) cout << ' ' << s2.top();
+			if (!s2.empty()) cout << s2.top();
 			if (!s2.empty()) s2.pop();
 			to60++;
 		}
 		to60 = 0;
-		cout << endl;
+		cout << endl << endl;
 	}
 	cout << endl;
 
 
 	cout << "Report:\n\n";
-	if (t.alightmentType == 0) printf("Global optimal score = %i\n\n", t.t[t.sequence1.size()][t.sequence2.size()]);
-	if (t.alightmentType == 1) printf("Local optimal score = %i\n\n", t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]);
+	if (t.alightmentType == 0) printf("Global optimal score = %i\n", t.t[t.sequence1.size()][t.sequence2.size()]);
+	if (t.alightmentType == 1) printf("Local optimal score = %i\n", t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]);
+	printf("Sanity Check: %i\n\n", matches * t.c.matchScore + mismatches * t.c.mismatchScore + gaps * t.c.continueGapScore + openingGaps * t.c.startGapScore);
 	printf("Number of:  matches = %i, mismatches = %i, gaps = %i, opening gaps = %i\n", matches, mismatches, gaps, openingGaps);
 	float total = gaps + matches + mismatches;
 	float identities = matches + mismatches;
