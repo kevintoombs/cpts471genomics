@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 
-
 using namespace std;
 
 struct config 
@@ -69,6 +68,7 @@ int main(int argc, char *argv[])
 	buildTable(t);
 	calcTable(t);
 	retrace(t);
+	printTable(t);
 
     return 0;
 }
@@ -134,21 +134,21 @@ void initTable(DP_table &t)
 
 	t.t[0][0].S = 0;
 
-	t.t[1][0].D = h;
+	t.t[1][0].D = h + g;
 	t.t[1][0].S = -1147483648;
 	t.t[1][0].I = -1147483648;
 
-	t.t[0][1].I = h;
+	t.t[0][1].I = h + g;
 	t.t[0][1].S = -1147483648;
 	t.t[0][1].D = -1147483648;
 
-	for (int i = 2; i < t.sequence1.length(); i++) 
+	for (int i = 2; i <= t.sequence1.length(); i++) 
 	{
 		t.t[i][0].D = t.t[i-1][0].D + g;
 		t.t[i][0].S = -1147483648;
 		t.t[i][0].I = -1147483648;
 	}
-	for (int j = 2; j < t.sequence2.length(); j++) 
+	for (int j = 2; j <= t.sequence2.length(); j++) 
 	{
 		t.t[0][j].I = t.t[0][j - 1].I + g;
 		t.t[0][j].S = -1147483648;
@@ -406,12 +406,12 @@ int subFunction(char a, char b, config c)
 
 void printTable(DP_table &t)
 {
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 100; i++) //do min(100, slength)
 	{
-		for (int j = 0; j < 80; j++)
+		for (int j = 0; j < 60; j++) //do min(100, slength)
 		{
 			int m = maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I,t.alightmentType);
-			if (m >= 0) printf("%3d", m);
+			if (/*m >= 0*/true) printf("%3d", m);
 			else cout << "   ";
 		}
 		cout << endl;
