@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 	
 	buildTable(t);
 	calcTable(t);
-	//newRetrace(t); 
+	newRetrace(t); 
 	//retrace(t);
 	//printTable(t);
 
@@ -565,41 +565,18 @@ void newRetrace(DP_table &t)
 
 void recursivelyPrintChildren(DP_table &t, int i, int j)
 {
-	if (i == 0 && j == 0) return;
+	if (i < 0 || j < 0) return;
 
 	printf("Cell[%i][%i] has value [%i]\n", i, j, cellMax(t.t[i][j], t.alightmentType));
 	
 	int max = 0;
-	int max1, max2, max3;
+	int max1 = 0, max2 = 0, max3 = 0;
 
-	try
-	{
-		max1 = cellMax(t.t[i - 1][j], t.alightmentType);
-	}
-	catch (const std::exception&)
-	{
-		max1 = -1147483648;
-	}
+	if (i > 0) max1 = cellMax(t.t[i - 1][j], t.alightmentType);
 	if (true) max = 1;
-	
-	try
-	{
-		max2 = cellMax(t.t[i][j - 1], t.alightmentType);
-	}
-	catch (const std::exception&)
-	{
-		max2 = -1147483648;
-	}
+	if (j > 0) max2 = cellMax(t.t[i][j - 1], t.alightmentType);
 	if (max2 > max1) max = 2;
-	
-	try
-	{
-		max3 = cellMax(t.t[i - 1][j - 1], t.alightmentType);
-	}
-	catch (const std::exception&)
-	{
-		max3 = -1147483648;
-	}
+	if (i > 0 && j > 0) max3 = cellMax(t.t[i - 1][j - 1], t.alightmentType);
 	if ((max3 > max1) && (max3 > max2)) max = 3;
 
 	if (max == 1)

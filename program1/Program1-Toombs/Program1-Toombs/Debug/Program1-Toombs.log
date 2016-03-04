@@ -9,4 +9,4 @@ c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toomb
 c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(548): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
 c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(562): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
 c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(563): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
-LINK : fatal error LNK1168: cannot open C:\Users\kevin\Documents\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.exe for writing
+  Program1-Toombs.vcxproj -> C:\Users\kevin\Documents\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.exe
