@@ -43,5 +43,8 @@
     <None Include="..\..\refs\parameters.config">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\..\refs\demo.config">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -18,7 +18,6 @@ struct DP_cell
 	int S = 0;// numeric_limits<int>::min();
 	int D = 0;// numeric_limits<int>::min();
 	int I = 0;// numeric_limits<int>::min();
-	int dir = 0;
 };
 
 struct DP_table
@@ -55,6 +54,7 @@ int main(int argc, char *argv[])
 	t.c = getConfig(argc, argv); 
 	if (!parseFasta(argv, t) )
 	{
+		cin.ignore();
 		return 1;
 	} 
 
@@ -62,9 +62,9 @@ int main(int argc, char *argv[])
 	cout << endl;
 
 	cout << "Sequence 1 = \"" << t.id1;
-	printf("\", length = %i characters\n", t.sequence1.length());
+	printf("\", length = %i characters\n", (int)t.sequence1.length());
 	cout << "Sequence 2 = \"" << t.id2;
-	printf("\", length = %i characters\n", t.sequence2.length());
+	printf("\", length = %i characters\n", (int)t.sequence2.length());
 	cout << endl;
 	
 	buildTable(t);
@@ -74,7 +74,6 @@ int main(int argc, char *argv[])
 	//printTable(t);
 
 	cin.ignore();
-
 
     return 0;
 }
@@ -92,36 +91,39 @@ void buildTable(DP_table &t)
 void calcTable(DP_table &t)
 {
 	if (t.alightmentType == 0) initTable(t);
-	int i, j, maxValue = 0;
+	int maxValue = 0;
 	tuple<int, int> maxPair;
 
 	printf("Calculating Table[rows remaining]:");
-	for (i = 1; i <= t.sequence1.length(); i++)
+	for (size_t i = 1; i <= t.sequence1.length(); i++)
 	{
-		if (i % (t.sequence1.length() / 100) == 0) printf("[%i]", t.sequence1.length() - i);
-		for (j = 1; j <=  t.sequence2.length(); j++)
+		//if (i % (t.sequence1.length() / 100) == 0) printf("[%i]", t.sequence1.length() - i);
+		for (size_t j = 1; j <=  t.sequence2.length(); j++)
 		{
 			int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
-			t.t[i][j].S = maximum
-				(t.t[i - 1][j - 1].S + sSub,
-					t.t[i - 1][j - 1].D + sSub,
-					t.t[i - 1][j - 1].I + sSub,
-					t.alightmentType);
+			DP_cell subCell = t.t[i - 1][j - 1];
+			DP_cell deleteCell = t.t[i - 1][j];
+			DP_cell insertCell = t.t[i][j - 1];
+			
+
+			t.t[i][j].S = maximum (subCell.S + sSub, subCell.D + sSub, subCell.I + sSub, t.alightmentType);
 			t.t[i][j].D = maximum
-				(t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
-					t.t[i - 1][j].D + t.c.continueGapScore,
-					t.t[i - 1][j].I + t.c.startGapScore + t.c.continueGapScore,
+				(deleteCell.S + t.c.startGapScore + t.c.continueGapScore,
+					deleteCell.D + t.c.continueGapScore,
+					deleteCell.I + t.c.startGapScore + t.c.continueGapScore,
 					t.alightmentType);
 			t.t[i][j].I = maximum
-				(t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
-					t.t[i][j - 1].D + t.c.continueGapScore + t.c.continueGapScore,
-					t.t[i][j - 1].I + t.c.startGapScore,
+				(insertCell.S + t.c.startGapScore + t.c.continueGapScore,
+					insertCell.D + t.c.continueGapScore + t.c.continueGapScore,
+					insertCell.I + t.c.startGapScore,
 					t.alightmentType);
-			if (t.alightmentType == 1)
+			if (true)
+			//if (t.alightmentType == 1)
 			{
-				if (cellMax(t.t[i][j], t.alightmentType) > maxValue)
+				int thisMax = cellMax(t.t[i][j], t.alightmentType);
+				if ( thisMax > maxValue)
 				{
-					maxValue = cellMax(t.t[i][j], t.alightmentType);
+					maxValue = thisMax;
 					maxPair = make_tuple(i, j);
 					t.maxPair = maxPair;
 				}
@@ -129,7 +131,6 @@ void calcTable(DP_table &t)
 		}
 	} 
 	cout << endl << endl;
-	t.t[i-1][j-1].dir = direction(t.t[i-1][j-1]);
 	
 }
 
@@ -139,22 +140,24 @@ void initTable(DP_table &t)
 	int g = t.c.continueGapScore;
 
 	t.t[0][0].S = 0;
-
-	t.t[1][0].D = h + g;
-	t.t[1][0].S = -1147483648;
+	t.t[1][0].D = -1147483648;
 	t.t[1][0].I = -1147483648;
 
-	t.t[0][1].I = h + g;
+	t.t[1][0].S = -1147483648;
+	t.t[1][0].D = h + g;
+	t.t[1][0].I = -1147483648;
+
 	t.t[0][1].S = -1147483648;
 	t.t[0][1].D = -1147483648;
+	t.t[0][1].I = h + g;
 
-	for (int i = 2; i <= t.sequence1.length(); i++) 
+	for (size_t i = 1; i <= t.sequence1.length(); i++) 
 	{
-		t.t[i][0].D = t.t[i-1][0].D + g;
 		t.t[i][0].S = -1147483648;
+		t.t[i][0].D = t.t[i-1][0].D + g;
 		t.t[i][0].I = -1147483648;
 	}
-	for (int j = 2; j <= t.sequence2.length(); j++) 
+	for (size_t j = 2; j <= t.sequence2.length(); j++) 
 	{
 		t.t[0][j].I = t.t[0][j - 1].I + g;
 		t.t[0][j].S = -1147483648;
@@ -380,6 +383,7 @@ int maximum(int S, int D, int I, int alignmentType)
 	return max;
 }
 
+/*
 int maximum2(int S, int D, int I, int alignmentType, DP_cell &c)
 {
 	int max = S;
@@ -397,6 +401,7 @@ int maximum2(int S, int D, int I, int alignmentType, DP_cell &c)
 	if (alignmentType == 1 && max < 0) max = 0;
 	return max;
 }
+*/
 
 int subFunction(char a, char b, config c)
 {
@@ -424,6 +429,7 @@ void printTable(DP_table &t)
 	}
 }
 
+/*
 void retrace(DP_table &t)
 {
 	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
@@ -554,20 +560,22 @@ void retrace(DP_table &t)
 	float p2 = 100 * gaps / total;
 	printf("Identities = %.0f/%.0f (%2.1f percent), Gaps = %i/%.0f (%2.1f percent)\n", identities, total, p1, gaps, total, p2);
 }
+*/
 
 void newRetrace(DP_table &t)
 {
-	recursivelyPrintChildren(t, t.sequence1.length(), t.sequence2.length());
+	recursivelyPrintChildren(t, (int)t.sequence1.length(), (int)t.sequence2.length());
 	cout << "Report:\n\n";
-	if (t.alightmentType == 0) printf("Global optimal score = %i\n", t.t[t.sequence1.size()][t.sequence2.size()]);
-	if (t.alightmentType == 1) printf("Local optimal score = %i\n", t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]);
+	/*if (t.alightmentType == 0)*/ printf("Global optimal score = %i\n", cellMax(t.t[t.sequence1.size()][t.sequence2.size()], t.alightmentType));
+	/*if (t.alightmentType == 1)*/ printf("Local optimal score = %i\n", cellMax(t.t[get<0>(t.maxPair)][get<1>(t.maxPair)], t.alightmentType));
+	printf("Goal: 6695 global/local 8475\n");
 }
 
 void recursivelyPrintChildren(DP_table &t, int i, int j)
 {
 	if (i < 0 || j < 0) return;
 
-	printf("Cell[%i][%i] has value [%i]\n", i, j, cellMax(t.t[i][j], t.alightmentType));
+	//printf("Cell[%i][%i] has value [%i]\n", i, j, cellMax(t.t[i][j], t.alightmentType));
 	
 	int max = 0;
 	int max1 = 0, max2 = 0, max3 = 0;
@@ -592,7 +600,6 @@ void recursivelyPrintChildren(DP_table &t, int i, int j)
 		recursivelyPrintChildren(t, i - 1, j-1);
 	}
 }
-
 
 int direction(DP_cell &c) 
 {

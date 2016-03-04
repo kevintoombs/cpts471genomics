@@ -1,27 +1,19 @@
-﻿Build started 2/24/2016 5:11:47 PM.
+﻿Build started 3/4/2016 2:04:03 PM.
      1>Project "C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Program1-Toombs\Program1-Toombs.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yc"stdafx.h" /Fp"Release\Program1-Toombs.pch" /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
-         stdafx.cpp
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Release\Program1-Toombs.pch" /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt "Program1-Toombs.cpp"
          Program1-Toombs.cpp
-     1>Program1-Toombs.cpp(89): warning C4018: '<=': signed/unsigned mismatch
-     1>Program1-Toombs.cpp(92): warning C4018: '<=': signed/unsigned mismatch
-     1>Program1-Toombs.cpp(141): warning C4018: '<': signed/unsigned mismatch
-     1>Program1-Toombs.cpp(147): warning C4018: '<': signed/unsigned mismatch
-     1>Program1-Toombs.cpp(517): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-     1>Program1-Toombs.cpp(518): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
-     1>Program1-Toombs.cpp(514): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
-     1>Program1-Toombs.cpp(515): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Release\Program1-Toombs.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Release\Program1-Toombs.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Release\Program1-Toombs.lib" /MACHINE:X86 /SAFESEH "Release\Program1-Toombs.obj"
          Release\stdafx.obj
          Generating code
-         All 491 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+         2 of 379 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
+           0 functions were new in current compilation
+           0 functions had inline decision re-evaluated but remain unchanged
          Finished generating code
          Program1-Toombs.vcxproj -> C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Release\Program1-Toombs.exe
      1>Done Building Project "C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Program1-Toombs\Program1-Toombs.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.85
+Time Elapsed 00:00:00.71

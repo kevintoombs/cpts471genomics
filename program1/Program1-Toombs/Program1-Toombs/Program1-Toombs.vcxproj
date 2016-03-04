@@ -154,6 +154,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\refs\demo.config" />
     <None Include="..\..\refs\Human-Mouse-BRCA2-cds.fasta" />
     <None Include="..\..\refs\in.fasta" />
     <None Include="..\..\refs\parameters.config" />
