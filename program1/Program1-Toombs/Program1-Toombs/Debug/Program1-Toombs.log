@@ -1,1 +1,12 @@
-﻿  Program1-Toombs.vcxproj -> C:\Users\kevin\Documents\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.exe
+﻿  Program1-Toombs.cpp
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(99): warning C4018: '<=': signed/unsigned mismatch
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(102): warning C4018: '<=': signed/unsigned mismatch
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(151): warning C4018: '<=': signed/unsigned mismatch
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(157): warning C4018: '<=': signed/unsigned mismatch
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(551): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(552): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(547): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(548): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(562): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
+c:\users\kevin\documents\cpts471genomics\program1\program1-toombs\program1-toombs\program1-toombs.cpp(563): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'DP_cell'
+LINK : fatal error LNK1168: cannot open C:\Users\kevin\Documents\cpts471genomics\program1\Program1-Toombs\Debug\Program1-Toombs.exe for writing

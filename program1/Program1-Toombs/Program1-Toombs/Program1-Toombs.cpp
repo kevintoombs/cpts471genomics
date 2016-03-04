@@ -1,5 +1,5 @@
 // Program1-Toombs.cpp : Defines the entry point for the console application.
-//
+// 6695 global/local 8475
 
 #include "stdafx.h"
 
@@ -41,6 +41,8 @@ int maximum(int S, int D, int I, int alignmentType);
 int subFunction(char a, char b, config c);
 void printTable(DP_table &t);
 void retrace(DP_table &t);
+void newRetrace(DP_table &t);
+void recursivelyPrintChildren(DP_table &t, int i, int j);
 int direction(DP_cell &c);
 int maximum2(int S, int D, int I, int alignmentType, DP_cell &c);
 int cellMax(DP_cell c, int alignmentType);
@@ -67,8 +69,12 @@ int main(int argc, char *argv[])
 	
 	buildTable(t);
 	calcTable(t);
-	retrace(t);
-	printTable(t);
+	//newRetrace(t); 
+	//retrace(t);
+	//printTable(t);
+
+	cin.ignore();
+
 
     return 0;
 }
@@ -95,21 +101,22 @@ void calcTable(DP_table &t)
 		if (i % (t.sequence1.length() / 100) == 0) printf("[%i]", t.sequence1.length() - i);
 		for (j = 1; j <=  t.sequence2.length(); j++)
 		{
-			t.t[i][j].S = maximum2
-				(t.t[i - 1][j - 1].S + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
-					t.t[i - 1][j - 1].D + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
-					t.t[i - 1][j - 1].I + subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c),
-					t.alightmentType, t.t[i - 1][j - 1]);
-			t.t[i][j].D = maximum2
+			int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
+			t.t[i][j].S = maximum
+				(t.t[i - 1][j - 1].S + sSub,
+					t.t[i - 1][j - 1].D + sSub,
+					t.t[i - 1][j - 1].I + sSub,
+					t.alightmentType);
+			t.t[i][j].D = maximum
 				(t.t[i - 1][j].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i - 1][j].D + t.c.continueGapScore,
 					t.t[i - 1][j].I + t.c.startGapScore + t.c.continueGapScore,
-					t.alightmentType, t.t[i - 1][j]);
-			t.t[i][j].I = maximum2
+					t.alightmentType);
+			t.t[i][j].I = maximum
 				(t.t[i][j - 1].S + t.c.startGapScore + t.c.continueGapScore,
 					t.t[i][j - 1].D + t.c.continueGapScore + t.c.continueGapScore,
 					t.t[i][j - 1].I + t.c.startGapScore,
-					t.alightmentType, t.t[i][j - 1]);
+					t.alightmentType);
 			if (t.alightmentType == 1)
 			{
 				if (cellMax(t.t[i][j], t.alightmentType) > maxValue)
@@ -123,7 +130,6 @@ void calcTable(DP_table &t)
 	} 
 	cout << endl << endl;
 	t.t[i-1][j-1].dir = direction(t.t[i-1][j-1]);
-
 	
 }
 
@@ -548,6 +554,68 @@ void retrace(DP_table &t)
 	float p2 = 100 * gaps / total;
 	printf("Identities = %.0f/%.0f (%2.1f percent), Gaps = %i/%.0f (%2.1f percent)\n", identities, total, p1, gaps, total, p2);
 }
+
+void newRetrace(DP_table &t)
+{
+	recursivelyPrintChildren(t, t.sequence1.length(), t.sequence2.length());
+	cout << "Report:\n\n";
+	if (t.alightmentType == 0) printf("Global optimal score = %i\n", t.t[t.sequence1.size()][t.sequence2.size()]);
+	if (t.alightmentType == 1) printf("Local optimal score = %i\n", t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]);
+}
+
+void recursivelyPrintChildren(DP_table &t, int i, int j)
+{
+	if (i == 0 && j == 0) return;
+
+	printf("Cell[%i][%i] has value [%i]\n", i, j, cellMax(t.t[i][j], t.alightmentType));
+	
+	int max = 0;
+	int max1, max2, max3;
+
+	try
+	{
+		max1 = cellMax(t.t[i - 1][j], t.alightmentType);
+	}
+	catch (const std::exception&)
+	{
+		max1 = -1147483648;
+	}
+	if (true) max = 1;
+	
+	try
+	{
+		max2 = cellMax(t.t[i][j - 1], t.alightmentType);
+	}
+	catch (const std::exception&)
+	{
+		max2 = -1147483648;
+	}
+	if (max2 > max1) max = 2;
+	
+	try
+	{
+		max3 = cellMax(t.t[i - 1][j - 1], t.alightmentType);
+	}
+	catch (const std::exception&)
+	{
+		max3 = -1147483648;
+	}
+	if ((max3 > max1) && (max3 > max2)) max = 3;
+
+	if (max == 1)
+	{
+		recursivelyPrintChildren(t, i - 1, j);
+	}
+	if (max == 2)
+	{
+		recursivelyPrintChildren(t, i, j-1);
+	}
+	if (max == 3)
+	{
+		recursivelyPrintChildren(t, i - 1, j-1);
+	}
+}
+
 
 int direction(DP_cell &c) 
 {
