@@ -123,11 +123,11 @@ void calcTable(DP_table &t)
 			else if (t.t[i][j].D == deleteCell.I + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].dDir = 3; //the bug is not here though. (still never called)
 			t.t[i][j].I = maximum
 				(insertCell.S + t.c.startGapScore + t.c.continueGapScore,
-					insertCell.D + t.c.continueGapScore + t.c.continueGapScore, //this is a bug lol, but it is like an impossible condition.
+					insertCell.D + t.c.startGapScore + t.c.continueGapScore, //FIXED//this is a bug lol, but it is like an impossible condition.
 					insertCell.I + t.c.continueGapScore,
 					t.alightmentType); 
 			if (t.t[i][j].I == insertCell.S + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].iDir = 1;
-			else if (t.t[i][j].I == insertCell.D + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].iDir = 2; //saaaame bug.
+			else if (t.t[i][j].I == insertCell.D + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].iDir = 2; //FIXED//saaaame bug.
 			else if (t.t[i][j].I == insertCell.I + t.c.continueGapScore) t.t[i][j].iDir = 3; 
 			// s.i = I + G is above, was I + H before. This bug was so hard to track down for a couple reasons. I'll detail what I think they are.
 			// First. We were taught in class that you put the shorter string as your s2 so that your space complexity is not quadratic.
@@ -136,9 +136,9 @@ void calcTable(DP_table &t)
 			//		String 1 (if it is longer) will have to be matched by AT LEAST 1 MORE DELETION from string 2 in a global alignment.
 			//		A shorter strings score still has to account for those empty, deleted, character... unless start gap penalties are nyah.
 			// Second: It's the last of 3 in a shitty chain of horrible to read if else statements.
-			// Third: my naming convention is just bad! 
-			// Fourth: 
-
+			// Third: my naming convention is just bad! I also should have kept ordering consitant. 
+			// Fourth: It really is just a rare call for the alignment. I can't imagine many cases where we wouldn't just be better off doing a mismatch in the 
+			//		first place. This is shown by the fact that it only caused the final number to be off by %10 in all of those calculations.
 			if (t.alightmentType == 1)
 			{
 				int thisMax = cellMax(t.t[i][j]);
