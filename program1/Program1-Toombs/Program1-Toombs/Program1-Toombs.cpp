@@ -77,7 +77,6 @@ int main(int argc, char *argv[])
 
 	//printTable(t);
 
-	cin.ignore();
     return 0;
 }
 
@@ -121,15 +120,24 @@ void calcTable(DP_table &t)
 					t.alightmentType);
 			if (t.t[i][j].D == deleteCell.S + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].dDir = 1;
 			else if (t.t[i][j].D == deleteCell.D + t.c.continueGapScore) t.t[i][j].dDir = 2;
-			else if (t.t[i][j].D == deleteCell.I + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].dDir = 3;
+			else if (t.t[i][j].D == deleteCell.I + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].dDir = 3; //the bug is not here though. (still never called)
 			t.t[i][j].I = maximum
 				(insertCell.S + t.c.startGapScore + t.c.continueGapScore,
-					insertCell.D + t.c.continueGapScore + t.c.continueGapScore,
+					insertCell.D + t.c.continueGapScore + t.c.continueGapScore, //this is a bug lol, but it is like an impossible condition.
 					insertCell.I + t.c.continueGapScore,
 					t.alightmentType); 
 			if (t.t[i][j].I == insertCell.S + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].iDir = 1;
-			else if (t.t[i][j].I == insertCell.D + t.c.continueGapScore + t.c.continueGapScore) t.t[i][j].iDir = 2;
-			else if (t.t[i][j].I == insertCell.I + t.c.continueGapScore) t.t[i][j].iDir = 3;
+			else if (t.t[i][j].I == insertCell.D + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].iDir = 2; //saaaame bug.
+			else if (t.t[i][j].I == insertCell.I + t.c.continueGapScore) t.t[i][j].iDir = 3; 
+			// s.i = I + G is above, was I + H before. This bug was so hard to track down for a couple reasons. I'll detail what I think they are.
+			// First. We were taught in class that you put the shorter string as your s2 so that your space complexity is not quadratic.
+			//		My implementation takes almost 4GB's in debug after I implemented retrace (it was 2 before, like Ananth said).
+			//		This means that usually the first input string is longer than the first. Because of that any insertions on 
+			//		String 1 (if it is longer) will have to be matched by AT LEAST 1 MORE DELETION from string 2 in a global alignment.
+			//		A shorter strings score still has to account for those empty, deleted, character... unless start gap penalties are nyah.
+			// Second: It's the last of 3 in a shitty chain of horrible to read if else statements.
+			// Third: my naming convention is just bad! 
+			// Fourth: 
 
 			if (t.alightmentType == 1)
 			{
