@@ -49,5 +49,8 @@
     <None Include="ref\test.fasta">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ref\test2.fasta">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
