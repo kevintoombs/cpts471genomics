@@ -45,7 +45,7 @@ void recursivelyPrintChildren(DP_table &t, int i, int j);
 int direction(DP_table &t, int i, int j);
 int maximum2(int S, int D, int I, int alignmentType, DP_cell &c);
 int cellMax(DP_cell c);
-void testDirection(DP_cell from, DP_cell to, config c, int dir);
+void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, DP_table &t);
 
 int main(int argc, char *argv[])
 {
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	
 	retrace(t);
 	
-	printTable(t);
+	//printTable(t);
 
 	cin.ignore();
 
@@ -442,15 +442,21 @@ void retrace(DP_table &t)
 
 	if (t.alightmentType == 1)
 	{
-		int i = get<0>(t.maxPair);
-		int j = get<1>(t.maxPair);
+		i = get<0>(t.maxPair);
+		j = get<1>(t.maxPair);
 	}
+
 
 
 	while (i > 0 || j > 0)
 	{
 		if (t.alightmentType == 1 && cellMax(t.t[i][j]) == 0)
 		{
+			DP_cell debug = t.t[i][j];
+			DP_cell sub = t.t[i - 1][j - 1];
+			DP_cell del = t.t[i - 1][j];
+			DP_cell in = t.t[i][j - 1];
+
 			break;
 		}
 		lastDir = dir;
@@ -463,6 +469,7 @@ void retrace(DP_table &t)
 			r.push(' ');
 			if (lastDir == dir)
 			{
+				cout << "in" << endl;
 				gaps++;
 			}
 			else
@@ -481,7 +488,7 @@ void retrace(DP_table &t)
 			if (lastDir == dir)
 			{
 				gaps++;
-				//cout << "gap" << endl;
+				cout << "del" << endl;
 			}
 			else
 			{
@@ -564,37 +571,6 @@ void retrace(DP_table &t)
 	printf("%i * %i + %i * %i + %i * %i + %i * %i\n\n", matches , t.c.matchScore , mismatches , t.c.mismatchScore , gaps ,t.c.continueGapScore , openingGaps , t.c.startGapScore);
 }
 
-
-void recursivelyPrintChildren(DP_table &t, int i, int j)
-{
-	if (i < 0 || j < 0) return;
-
-	//printf("Cell[%i][%i] has value [%i]\n", i, j, cellMax(t.t[i][j], t.alightmentType));
-	
-	int max = 0;
-	int max1 = 0, max2 = 0, max3 = 0;
-
-	if (i > 0) max1 = cellMax(t.t[i - 1][j]);
-	if (true) max = 1;
-	if (j > 0) max2 = cellMax(t.t[i][j - 1]);
-	if (max2 > max1) max = 2;
-	if (i > 0 && j > 0) max3 = cellMax(t.t[i - 1][j - 1]);
-	if ((max3 > max1) && (max3 > max2)) max = 3;
-
-	if (max == 1)
-	{
-		recursivelyPrintChildren(t, i - 1, j);
-	}
-	if (max == 2)
-	{
-		recursivelyPrintChildren(t, i, j-1);
-	}
-	if (max == 3)
-	{
-		recursivelyPrintChildren(t, i - 1, j-1);
-	}
-}
-
 int direction(DP_table &t, int i, int j)
 {
 	//2 = S, 3 = D, 1 = I 
@@ -625,23 +601,24 @@ int direction(DP_table &t, int i, int j)
 		int testValue1 = deleteCell.S + t.c.startGapScore + t.c.continueGapScore;
 		int testValue2 = deleteCell.D + t.c.continueGapScore;
 		int testValue3 = deleteCell.I + t.c.startGapScore + t.c.continueGapScore;
-
+		
 		if (max == deleteCell.S + t.c.startGapScore + t.c.continueGapScore ||
 			max == deleteCell.D + t.c.continueGapScore ||
 			max == deleteCell.I + t.c.startGapScore + t.c.continueGapScore)
+		/*if (max == testValue1 || testValue2 || testValue3)*/
 		{
 			fromCell = deleteCell;
-			testDirection(c, fromCell, t.c, dir);
 			dir = 3;
 		}
 	}
 	if (j != 0)
 	{
 		DP_cell insertCell = t.t[i][j - 1];
+		int testValue1 = insertCell.S + t.c.startGapScore + t.c.continueGapScore;
+		int testValue2 = insertCell.D + t.c.startGapScore + t.c.continueGapScore;
+		int testValue3 = insertCell.I + t.c.continueGapScore;
 
-		if (max == insertCell.S + t.c.startGapScore + t.c.continueGapScore ||
-			max == insertCell.D + t.c.continueGapScore + t.c.continueGapScore ||
-			max == insertCell.I + t.c.continueGapScore)
+		if (max == testValue1 || max == testValue2 || max == testValue3)
 		{
 			fromCell = insertCell;
 			dir = 1;
@@ -652,26 +629,35 @@ int direction(DP_table &t, int i, int j)
 	{
 		exit(2);
 	}
-	testDirection(fromCell, c, t.c, dir);
-	//cout << "[" << max << " sub(" << 0 << ")" << cellMax(fromCell) << "]";
+
+	testDirection(max, c, t.c, dir, i, j, t);
 	return dir;
 }
 
 //a + b = c
-void testDirection(DP_cell from, DP_cell to, config c, int dir)
+void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, DP_table &t)
 {
 	bool y = true;
+	char a = t.sequence1[i];
+	char b = t.sequence2[j];
+
 	if (dir == 1) 
 	{
-
+		int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
+		y = cellMax(to) == lastValue;
 	}
 	else if (dir == 2)
 	{
+		y = true;
 
 	}
 	else if (dir == 3)
 	{
-
+		y = true;
 	}
-	if (!y) printf("\n@@@@X@@@@\n");
+	if (!y)
+	{
+		cout << "[" << lastValue << " sub(" << 0 << ")" << cellMax(to) << "]";
+		printf("\n@@@@X@@@@\n");
+	}
 }

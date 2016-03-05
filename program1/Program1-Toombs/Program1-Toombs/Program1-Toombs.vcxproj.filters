@@ -16,9 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="test.fasta">
-      <Filter>Resource Files</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -37,19 +34,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\refs\Human-Mouse-BRCA2-cds.fasta">
+    <None Include="ref\demo.config">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\refs\in.fasta">
+    <None Include="ref\Human-Mouse-BRCA2-cds.fasta">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\refs\parameters.config">
+    <None Include="ref\in.fasta">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\..\refs\demo.config">
+    <None Include="ref\parameters.config">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="test.config">
+    <None Include="ref\test.fasta">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
