@@ -15,9 +15,9 @@ struct config
 
 struct DP_cell 
 {
-	int S = 0;// numeric_limits<int>::min();
-	int D = 0;// numeric_limits<int>::min();
-	int I = 0;// numeric_limits<int>::min();
+	int S;// numeric_limits<int>::min();
+	int D;// numeric_limits<int>::min();
+	int I;// numeric_limits<int>::min();
 };
 
 struct DP_table
@@ -42,7 +42,7 @@ void printTable(DP_table &t);
 void retrace(DP_table &t);
 void newRetrace(DP_table &t);
 void recursivelyPrintChildren(DP_table &t, int i, int j);
-int direction(DP_cell &c);
+int direction(DP_table &t, int i, int j);
 int maximum2(int S, int D, int I, int alignmentType, DP_cell &c);
 int cellMax(DP_cell c, int alignmentType);
 
@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
 	
 	buildTable(t);
 	calcTable(t);
-	newRetrace(t); 
-	//retrace(t);
+	retrace(t);
+	//newRetrace(t);
 	//printTable(t);
 
 	cin.ignore();
@@ -97,7 +97,7 @@ void calcTable(DP_table &t)
 	printf("Calculating Table[rows remaining]:");
 	for (size_t i = 1; i <= t.sequence1.length(); i++)
 	{
-		//if (i % (t.sequence1.length() / 100) == 0) printf("[%i]", t.sequence1.length() - i);
+		if (i % ((t.sequence1.length() / 100) + 1) == 0) printf("[%i]", (int)t.sequence1.length() - (int)i);
 		for (size_t j = 1; j <=  t.sequence2.length(); j++)
 		{
 			int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
@@ -115,10 +115,10 @@ void calcTable(DP_table &t)
 			t.t[i][j].I = maximum
 				(insertCell.S + t.c.startGapScore + t.c.continueGapScore,
 					insertCell.D + t.c.continueGapScore + t.c.continueGapScore,
-					insertCell.I + t.c.startGapScore,
+					insertCell.I + t.c.continueGapScore,
 					t.alightmentType);
-			if (true)
-			//if (t.alightmentType == 1)
+
+			if (t.alightmentType == 1)
 			{
 				int thisMax = cellMax(t.t[i][j], t.alightmentType);
 				if ( thisMax > maxValue)
@@ -139,29 +139,17 @@ void initTable(DP_table &t)
 	int h = t.c.startGapScore;
 	int g = t.c.continueGapScore;
 
-	t.t[0][0].S = 0;
-	t.t[1][0].D = -1147483648;
-	t.t[1][0].I = -1147483648;
-
-	t.t[1][0].S = -1147483648;
-	t.t[1][0].D = h + g;
-	t.t[1][0].I = -1147483648;
-
-	t.t[0][1].S = -1147483648;
-	t.t[0][1].D = -1147483648;
-	t.t[0][1].I = h + g;
-
-	for (size_t i = 1; i <= t.sequence1.length(); i++) 
+	for (size_t i = 0; i <= t.sequence1.length(); i++) 
 	{
 		t.t[i][0].S = -1147483648;
-		t.t[i][0].D = t.t[i-1][0].D + g;
+		t.t[i][0].D = h + (int)i * g;
 		t.t[i][0].I = -1147483648;
 	}
-	for (size_t j = 2; j <= t.sequence2.length(); j++) 
+	for (size_t j = 0; j <= t.sequence2.length(); j++) 
 	{
-		t.t[0][j].I = t.t[0][j - 1].I + g;
 		t.t[0][j].S = -1147483648;
 		t.t[0][j].D = -1147483648;
+		t.t[0][j].I = h + (int)j * g;
 	} 
 }
 
@@ -364,7 +352,6 @@ int cellMax(DP_cell c, int alignmentType)
 	{
 		max = c.I;
 	}
-	if (alignmentType == 1 && max < 0) max = 0;
 	return max;
 }
 
@@ -417,11 +404,17 @@ int subFunction(char a, char b, config c)
 
 void printTable(DP_table &t)
 {
-	for (int i = 0; i < 100; i++) //do min(100, slength)
+	int m = 0;
+	int a = t.alightmentType;
+	int s1length = (int)t.sequence1.length();
+	int s2length = (int)t.sequence2.length();
+
+	for (int i = 0; i <= s1length; i++) //do min(100, slength)
 	{
-		for (int j = 0; j < 60; j++) //do min(100, slength)
+		for (int j = 0; j <= s2length; j++) //do min(100, slength)
 		{
-			int m = maximum(t.t[i][j].S, t.t[i][j].D, t.t[i][j].I,t.alightmentType);
+			DP_cell c = t.t[i][j];
+			m = cellMax(c, a);
 			if (/*m >= 0*/true) printf("%3d", m);
 			else cout << "   ";
 		}
@@ -429,16 +422,16 @@ void printTable(DP_table &t)
 	}
 }
 
-/*
 void retrace(DP_table &t)
 {
+	//cout << "retrace\n";
 	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
 	int lastDir = -1;
 	int dir = -1;
 	stack<char> s1, s2, r;
 	int lastValue = 1;
-	int i = t.sequence1.length();
-	int j = t.sequence2.length();
+	int i = (int)t.sequence1.length();
+	int j = (int)t.sequence2.length();
 
 	if (t.alightmentType == 1)
 	{
@@ -447,14 +440,14 @@ void retrace(DP_table &t)
 	}
 
 
-	while (i >= 0 && j >= 0)
+	while (i > 0 || j > 0)
 	{
 		if (t.alightmentType == 1 && cellMax(t.t[i][j], t.alightmentType) == 0)
 		{
 			break;
 		}
 		lastDir = dir;
-		dir = t.t[i][j].dir;
+		dir = direction(t, i, j);
 		if (dir == 1)
 		{
 			j--;
@@ -550,25 +543,25 @@ void retrace(DP_table &t)
 
 
 	cout << "Report:\n\n";
-	if (t.alightmentType == 0) printf("Global optimal score = %i\n", t.t[t.sequence1.size()][t.sequence2.size()]);
-	if (t.alightmentType == 1) printf("Local optimal score = %i\n", t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]);
-	printf("Sanity Check: %i\n\n", matches * t.c.matchScore + mismatches * t.c.mismatchScore + gaps * t.c.continueGapScore + openingGaps * t.c.startGapScore);
+	if (t.alightmentType == 0)/**/ printf("Global optimal score = %i.\n", cellMax(t.t[t.sequence1.size()][t.sequence2.size()], t.alightmentType));
+	if (t.alightmentType == 1)/**/ printf("Local optimal score = %i found at %i,%i.\n", cellMax(t.t[get<0>(t.maxPair)][get<1>(t.maxPair)], t.alightmentType), get<0>(t.maxPair), get<1>(t.maxPair));
 	printf("Number of:  matches = %i, mismatches = %i, gaps = %i, opening gaps = %i\n", matches, mismatches, gaps, openingGaps);
-	float total = gaps + matches + mismatches;
-	float identities = matches + mismatches;
+	float total = (float)gaps + (float)matches + (float)mismatches;
+	float identities = (float)matches + (float)mismatches;
 	float p1 = 100 * identities / total;
 	float p2 = 100 * gaps / total;
 	printf("Identities = %.0f/%.0f (%2.1f percent), Gaps = %i/%.0f (%2.1f percent)\n", identities, total, p1, gaps, total, p2);
+	printf("Sanity Check: %i\n\n", matches * t.c.matchScore + mismatches * t.c.mismatchScore + gaps * t.c.continueGapScore + openingGaps * t.c.startGapScore);
 }
-*/
 
 void newRetrace(DP_table &t)
 {
+	cout << "New Retrace:\n\n";
 	recursivelyPrintChildren(t, (int)t.sequence1.length(), (int)t.sequence2.length());
-	cout << "Report:\n\n";
-	/*if (t.alightmentType == 0)*/ printf("Global optimal score = %i\n", cellMax(t.t[t.sequence1.size()][t.sequence2.size()], t.alightmentType));
-	/*if (t.alightmentType == 1)*/ printf("Local optimal score = %i\n", cellMax(t.t[get<0>(t.maxPair)][get<1>(t.maxPair)], t.alightmentType));
-	printf("Goal: 6695 global/local 8475\n");
+	cout << "\nReport:\n\n";
+	if (t.alightmentType == 0)/**/ printf("Global optimal score = %i. Goal: 6695.\n", cellMax(t.t[t.sequence1.size()][t.sequence2.size()], t.alightmentType));
+	if (t.alightmentType == 1)/**/ printf("Local optimal score = %i. Goal: 8475.\n", cellMax(t.t[get<0>(t.maxPair)][get<1>(t.maxPair)], t.alightmentType));
+	//printf("\n%s\n", t.sequence1);
 }
 
 void recursivelyPrintChildren(DP_table &t, int i, int j)
@@ -601,20 +594,49 @@ void recursivelyPrintChildren(DP_table &t, int i, int j)
 	}
 }
 
-int direction(DP_cell &c) 
+int direction(DP_table &t, int i, int j)
 {
-	int dir = 2;
-	int max = c.S;
+	//2 = S, 3 = D, 1 = I 
+	//if (j == 0) return 3;
+	//if (i == 0) return 1;
 
-	if (c.D > max)
+	DP_cell c = t.t[i][j];
+	int max = cellMax(c, t.alightmentType);
+	int dir = 0;
+
+	if (i != 0 && j != 0)
 	{
-		max = c.D;
-		dir = 3;
+		int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
+		DP_cell subCell = t.t[i - 1][j - 1];
+
+		if (max == cellMax(subCell, t.alightmentType) + sSub)
+		{
+			return 2;
+		}
 	}
-	if (c.I > max)
+	if (i != 0)
 	{
-		max = c.I;
-		dir = 1;
+		DP_cell deleteCell = t.t[i - 1][j];
+
+		if (max == deleteCell.S + t.c.startGapScore + t.c.continueGapScore ||
+			max == deleteCell.D + t.c.continueGapScore ||
+			max == deleteCell.I + t.c.startGapScore + t.c.continueGapScore)
+		{
+			return 3;
+		}
 	}
+	if (j != 0)
+	{
+		DP_cell insertCell = t.t[i][j - 1];
+
+		if (max == insertCell.S + t.c.startGapScore + t.c.continueGapScore ||
+			max == insertCell.D + t.c.continueGapScore + t.c.continueGapScore ||
+			max == insertCell.I + t.c.continueGapScore)
+		{
+			return 1;
+		}
+	}
+	
+	if (dir == 0) exit(1);
 	return dir;
 }

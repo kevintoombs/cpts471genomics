@@ -139,6 +139,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="test.fasta" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -158,6 +159,7 @@
     <None Include="..\..\refs\Human-Mouse-BRCA2-cds.fasta" />
     <None Include="..\..\refs\in.fasta" />
     <None Include="..\..\refs\parameters.config" />
+    <None Include="test.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

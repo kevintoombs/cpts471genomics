@@ -16,6 +16,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="test.fasta">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -44,6 +47,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\..\refs\demo.config">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="test.config">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
