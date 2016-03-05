@@ -1,9 +1,9 @@
-    >s1 sequence 
-    acatgctacacgtactccgataccccgtaaccgataacgatacacagacct
-    cgtacgcttgctacaacgtactctataaccgagaacgattgaca
-    tgcctcgtacacatgctacacgtactccgatgaccccgt
+>s1 sequence 
+ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTG
+CTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACT
+CCGAT 
 
-    >s2 sequence 
-    acattctacgaacctctcgataaccccataaccgataacgattgacacctcgt
-    acgctttctacaacttactctctcgataaccccataaccgataacgattgacacctc
-    gtacacatggtacatacgtactctcgataccccgt
+>s2
+ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTG 
+CTAATAACCGAGAACGATTGACATTCCTCGTACAGCTACACGTACT 
+CCGAT

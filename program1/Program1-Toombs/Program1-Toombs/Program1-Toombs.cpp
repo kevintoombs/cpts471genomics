@@ -69,8 +69,9 @@ int main(int argc, char *argv[])
 	
 	buildTable(t);
 	calcTable(t);
+	newRetrace(t);
 	retrace(t);
-	//newRetrace(t);
+	
 	//printTable(t);
 
 	cin.ignore();
@@ -597,32 +598,41 @@ void recursivelyPrintChildren(DP_table &t, int i, int j)
 int direction(DP_table &t, int i, int j)
 {
 	//2 = S, 3 = D, 1 = I 
-	//if (j == 0) return 3;
-	//if (i == 0) return 1;
+	if (j == 0 && i == 1) return 3;
+	if (i == 0 && j == 1) return 1;
 
 	DP_cell c = t.t[i][j];
 	int max = cellMax(c, t.alightmentType);
+	
+	cout << "[" << max;
+
 	int dir = 0;
 
 	if (i != 0 && j != 0)
 	{
 		int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
 		DP_cell subCell = t.t[i - 1][j - 1];
+		int testValue1 = cellMax(subCell, t.alightmentType) + sSub;
 
-		if (max == cellMax(subCell, t.alightmentType) + sSub)
+		if (max == testValue1)
 		{
-			return 2;
+			cout << " sub(" << sSub << ")"  << cellMax(subCell, t.alightmentType) << "]\n";
+			dir = 2;
 		}
 	}
 	if (i != 0)
 	{
 		DP_cell deleteCell = t.t[i - 1][j];
+		int testValue1 = deleteCell.S + t.c.startGapScore + t.c.continueGapScore;
+		int testValue2 = deleteCell.D + t.c.continueGapScore;
+		int testValue3 = deleteCell.I + t.c.startGapScore + t.c.continueGapScore;
 
 		if (max == deleteCell.S + t.c.startGapScore + t.c.continueGapScore ||
 			max == deleteCell.D + t.c.continueGapScore ||
 			max == deleteCell.I + t.c.startGapScore + t.c.continueGapScore)
 		{
-			return 3;
+			cout << " del " << cellMax(deleteCell, t.alightmentType) << "]\n";
+			dir = 3;
 		}
 	}
 	if (j != 0)
@@ -633,10 +643,17 @@ int direction(DP_table &t, int i, int j)
 			max == insertCell.D + t.c.continueGapScore + t.c.continueGapScore ||
 			max == insertCell.I + t.c.continueGapScore)
 		{
-			return 1;
+			cout << " in " << cellMax(insertCell, t.alightmentType) << "]\n";
+
+			dir = 1;
 		}
 	}
 	
-	if (dir == 0) exit(1);
+	if (dir == 0) exit(2);
 	return dir;
+}
+
+void testDirection(int m1, int m2, config c, int dir)
+{
+
 }
