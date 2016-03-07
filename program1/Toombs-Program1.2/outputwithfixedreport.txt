@@ -1,0 +1,26 @@
+PS C:\Users\guenw\Documents\gitrepos\cpts471genomics\program1\Program1-Toombs\Debug> .\Program1-Toombs.exe in.fasta 0
+Default file: parameters.config opened.
+Scores: Match = 1, Mismatch = 1, h = -5, g = -1
+
+Sequence 1 = s1, length = 125 characters
+Sequence 2 = s2, length = 111 characters
+
+Building Table.
+Calculating Table[characters remaining]:[110][95][80][65][50][35][20][5]
+
+ A C A T G C T A C A C G T A T C C G A T A C C C C G T A A C C G A T A A C G A T A C A C A G A C C T C G T A C G C T T G
+ | | | | | |   | | | |       | | | | | | | | | | | | | | | | | | | | | | | | | | | | |   | | | | | | | | | | | | | | | |
+ A C A T G C G A C A C T A C T C C G A T A C C C C G T A A C C G A T A A C G A T A C A G A G A C C T C G T A C G C T T G
+ C T A C A A C G T A C T C T A T A A C C G A G A A C G A T T G A C A T G C C T C G T A C A C A T G C T A C A C G T A C T
+             |   | |         | | | | | | | | | | | | | | | | | | | | |   | | | | | |     | | |   | | | | | | | | | | | |
+ - - - - - - C - T A - - - - A T A A C C G A G A A C G A T T G A C A T T C C T C G T - - A C A - G C T A C A C G T A C T
+ C C G A T
+ | | | | |
+ C C G A T
+
+Report:
+
+Global optimal score = 69
+
+Number of:  matches = 105, mismatches = 6, gaps = 14, opening gaps = 5
+Identities = 111/125 (88.8 percent), Gaps = 14/125 (11.2 percent)
