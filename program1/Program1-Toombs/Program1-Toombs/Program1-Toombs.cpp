@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
 	retrace(t);
 
 	//printTable(t);
+	cin.ignore();
 
     return 0;
 }
@@ -476,7 +477,6 @@ void retrace(DP_table &t)
 		j = get<1>(t.maxPair);
 	}
 
-
 	cout << "reverse dirs" << endl;
 	DP_cell c = t.t[i][j];
 	int dirSDI = 0;
@@ -630,7 +630,7 @@ void retrace(DP_table &t)
 		if (dirSDI == 3) find = c.I;
 		moveDir = cellMax2(c, find, dirSDI);
 
-		printf("Moving to %i, for %i\n", moveDir, dirSDI);
+		//printf("Moving to %i, for %i\n", moveDir, dirSDI);
 		
 	}
 
@@ -672,7 +672,7 @@ void retrace(DP_table &t)
 
 	cout << "Report:\n\n";
 	if (t.alightmentType == 0)/**/ printf("Global optimal score = %i.\n", cellMax(t.t[t.sequence1.size()][t.sequence2.size()]));
-	if (t.alightmentType == 1)/**/ printf("Local optimal score = %i found at %i,%i.\n", cellMax(t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]), get<0>(t.maxPair), get<1>(t.maxPair));
+	if (t.alightmentType == 1)/**/ printf("Local optimal score = %i found at (%i,%i) to (%i,%i).\n", cellMax(t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]), get<0>(t.maxPair), get<1>(t.maxPair), i, j);
 	printf("Number of:  matches = %i, mismatches = %i, gaps = %i, opening gaps = %i\n", matches, mismatches, gaps, openingGaps);
 	float total = (float)gaps + (float)matches + (float)mismatches;
 	float identities = (float)matches + (float)mismatches;
@@ -786,19 +786,19 @@ int cellMax2(DP_cell &c, int find, int &mDir)
 	//printf("cout lol %i", "\n");
 	if (find == c.S && SDI == 1) 
 	{
-		cout << "(found " << find << ") ";
+		//cout << "(found " << find << ") ";
 		mDir = c.sDir;
 		return 1;
 	}
 	if (find == c.D && SDI == 2)
 	{
-		cout << "(found " << find << ") ";
+		//cout << "(found " << find << ") ";
 		mDir = c.dDir;
 		return 2;
 	}
 	if (find == c.I && SDI == 3)
 	{ 
-		cout << "(found " << find << ") ";
+		//cout << "(found " << find << ") ";
 		mDir = c.iDir;
 		return 3;
 	}

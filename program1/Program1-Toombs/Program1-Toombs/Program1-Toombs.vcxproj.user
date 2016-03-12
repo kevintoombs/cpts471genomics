@@ -13,7 +13,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>$(ProjectDir)ref\test.fasta 0 $(ProjectDir)ref\parameters.config</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>$(ProjectDir)ref\Human-Mouse-BRCA2-cds.fasta 0 $(ProjectDir)ref\parameters.config</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
